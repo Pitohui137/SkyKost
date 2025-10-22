@@ -1,14 +1,19 @@
 
 import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
-import { ScrollView, StyleSheet, View, Text, Pressable, Platform, Alert, ActivityIndicator } from "react-native";
+import { ScrollView, StyleSheet, View, Text, Pressable, Platform, Alert, ActivityIndicator, TextInput, Modal } from "react-native";
 import { IconSymbol } from "@/components/IconSymbol";
 import { colors, commonStyles } from "@/styles/commonStyles";
-import { getPaymentMethods, setDefaultPaymentMethod, deletePaymentMethod, PaymentMethod } from "@/utils/database";
+import { getPaymentMethods, setDefaultPaymentMethod, deletePaymentMethod, savePaymentMethod, PaymentMethod } from "@/utils/database";
 
 export default function PaymentMethodsScreen() {
   const [loading, setLoading] = useState(true);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newMethodType, setNewMethodType] = useState<'card' | 'bank' | 'ewallet'>('bank');
+  const [newMethodName, setNewMethodName] = useState('');
+  const [newMethodLast4, setNewMethodLast4] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadPaymentMethods();
@@ -28,12 +33,44 @@ export default function PaymentMethodsScreen() {
   };
 
   const handleAddPaymentMethod = () => {
-    Alert.alert(
-      'Tambah Metode Pembayaran',
-      'Fitur ini akan membuka form untuk menambah metode pembayaran baru.',
-      [{ text: 'OK' }]
-    );
-    console.log('Tambah metode pembayaran pressed');
+    setShowAddModal(true);
+    setNewMethodType('bank');
+    setNewMethodName('');
+    setNewMethodLast4('');
+  };
+
+  const handleSaveNewMethod = async () => {
+    if (!newMethodName.trim()) {
+      Alert.alert('Error', 'Mohon isi nama metode pembayaran');
+      return;
+    }
+
+    if (!newMethodLast4.trim() || newMethodLast4.length < 4) {
+      Alert.alert('Error', 'Mohon isi 4 digit terakhir dengan benar');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const isFirstMethod = paymentMethods.length === 0;
+      
+      await savePaymentMethod({
+        type: newMethodType,
+        name: newMethodName.trim(),
+        last4: newMethodLast4.trim(),
+        is_default: isFirstMethod,
+      });
+
+      await loadPaymentMethods();
+      setShowAddModal(false);
+      Alert.alert('Berhasil', 'Metode pembayaran berhasil ditambahkan');
+      console.log('Payment method added successfully');
+    } catch (error) {
+      console.error('Error saving payment method:', error);
+      Alert.alert('Error', 'Gagal menambahkan metode pembayaran');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSetDefault = async (id: string) => {
@@ -171,7 +208,7 @@ export default function PaymentMethodsScreen() {
                       {method.last4}
                     </Text>
                   </View>
-                  {method.isDefault && (
+                  {method.is_default && (
                     <View style={styles.defaultBadge}>
                       <Text style={styles.defaultBadgeText}>Default</Text>
                     </View>
@@ -179,7 +216,7 @@ export default function PaymentMethodsScreen() {
                 </View>
 
                 <View style={styles.methodActions}>
-                  {!method.isDefault && (
+                  {!method.is_default && (
                     <Pressable 
                       style={styles.actionButton}
                       onPress={() => handleSetDefault(method.id)}
@@ -216,6 +253,95 @@ export default function PaymentMethodsScreen() {
             </View>
           </View>
         </ScrollView>
+
+        {/* Add Payment Method Modal */}
+        <Modal
+          visible={showAddModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowAddModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Tambah Metode Pembayaran</Text>
+                <Pressable onPress={() => setShowAddModal(false)}>
+                  <IconSymbol name="xmark.circle.fill" size={28} color={colors.textSecondary} />
+                </Pressable>
+              </View>
+
+              <View style={styles.modalBody}>
+                <Text style={styles.inputLabel}>Tipe Metode</Text>
+                <View style={styles.typeSelector}>
+                  <Pressable
+                    style={[styles.typeButton, newMethodType === 'bank' && styles.typeButtonActive]}
+                    onPress={() => setNewMethodType('bank')}
+                  >
+                    <IconSymbol name="building.columns.fill" size={20} color={newMethodType === 'bank' ? '#FFFFFF' : colors.primary} />
+                    <Text style={[styles.typeButtonText, newMethodType === 'bank' && styles.typeButtonTextActive]}>Bank</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.typeButton, newMethodType === 'card' && styles.typeButtonActive]}
+                    onPress={() => setNewMethodType('card')}
+                  >
+                    <IconSymbol name="creditcard.fill" size={20} color={newMethodType === 'card' ? '#FFFFFF' : colors.primary} />
+                    <Text style={[styles.typeButtonText, newMethodType === 'card' && styles.typeButtonTextActive]}>Kartu</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.typeButton, newMethodType === 'ewallet' && styles.typeButtonActive]}
+                    onPress={() => setNewMethodType('ewallet')}
+                  >
+                    <IconSymbol name="wallet.pass.fill" size={20} color={newMethodType === 'ewallet' ? '#FFFFFF' : colors.primary} />
+                    <Text style={[styles.typeButtonText, newMethodType === 'ewallet' && styles.typeButtonTextActive]}>E-Wallet</Text>
+                  </Pressable>
+                </View>
+
+                <Text style={styles.inputLabel}>Nama {newMethodType === 'bank' ? 'Bank' : newMethodType === 'card' ? 'Kartu' : 'E-Wallet'}</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder={`Contoh: ${newMethodType === 'bank' ? 'BCA' : newMethodType === 'card' ? 'Visa' : 'GoPay'}`}
+                  placeholderTextColor={colors.textSecondary}
+                  value={newMethodName}
+                  onChangeText={setNewMethodName}
+                  editable={!saving}
+                />
+
+                <Text style={styles.inputLabel}>4 Digit Terakhir</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="1234"
+                  placeholderTextColor={colors.textSecondary}
+                  value={newMethodLast4}
+                  onChangeText={setNewMethodLast4}
+                  keyboardType="number-pad"
+                  maxLength={4}
+                  editable={!saving}
+                />
+              </View>
+
+              <View style={styles.modalFooter}>
+                <Pressable
+                  style={[styles.modalButton, styles.modalButtonCancel]}
+                  onPress={() => setShowAddModal(false)}
+                  disabled={saving}
+                >
+                  <Text style={styles.modalButtonTextCancel}>Batal</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.modalButton, styles.modalButtonSave, saving && styles.modalButtonDisabled]}
+                  onPress={handleSaveNewMethod}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.modalButtonTextSave}>Simpan</Text>
+                  )}
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </>
   );
@@ -388,5 +514,107 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  modalBody: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 8,
+    marginTop: 16,
+  },
+  typeSelector: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  typeButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.secondary,
+    paddingVertical: 12,
+    borderRadius: 8,
+    gap: 6,
+  },
+  typeButtonActive: {
+    backgroundColor: colors.primary,
+  },
+  typeButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  typeButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  textInput: {
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.secondary,
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalButtonCancel: {
+    backgroundColor: colors.secondary,
+  },
+  modalButtonSave: {
+    backgroundColor: colors.primary,
+  },
+  modalButtonDisabled: {
+    opacity: 0.6,
+  },
+  modalButtonTextCancel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  modalButtonTextSave: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });

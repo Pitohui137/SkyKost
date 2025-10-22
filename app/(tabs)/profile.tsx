@@ -2,19 +2,33 @@
 import { View, Text, StyleSheet, ScrollView, Platform, Pressable, Alert } from "react-native";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useTheme } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
 import { colors, commonStyles } from "@/styles/commonStyles";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { getKostInfo, KostInfo, clearAllData, initializeSampleData } from "@/utils/database";
+import { supabase } from "@/lib/supabase";
 
 export default function ProfileScreen() {
   const theme = useTheme();
   const [kostInfo, setKostInfo] = useState<KostInfo | null>(null);
+  const [userEmail, setUserEmail] = useState<string>('');
 
   useEffect(() => {
     loadKostInfo();
+    loadUserInfo();
   }, []);
+
+  const loadUserInfo = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email || '');
+        console.log('User info loaded:', user.email);
+      }
+    } catch (error) {
+      console.error('Error loading user info:', error);
+    }
+  };
 
   const loadKostInfo = async () => {
     try {
@@ -52,6 +66,35 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleSignOut = () => {
+    Alert.alert(
+      'Keluar',
+      'Apakah Anda yakin ingin keluar?',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Keluar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const { error } = await supabase.auth.signOut();
+              if (error) {
+                console.error('Sign out error:', error);
+                Alert.alert('Error', 'Gagal keluar. Silakan coba lagi.');
+                return;
+              }
+              console.log('User signed out successfully');
+              router.replace('/auth');
+            } catch (error) {
+              console.error('Sign out error:', error);
+              Alert.alert('Error', 'Terjadi kesalahan. Silakan coba lagi.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <>
       {Platform.OS === 'ios' && (
@@ -79,9 +122,12 @@ export default function ProfileScreen() {
               </View>
             </View>
             <Text style={styles.profileName}>Penghuni Kost</Text>
+            {userEmail && (
+              <Text style={styles.profileEmail}>{userEmail}</Text>
+            )}
             {kostInfo && (
               <Text style={styles.profileSubtext}>
-                {kostInfo.name} - Kamar {kostInfo.roomNumber}
+                {kostInfo.name} - Kamar {kostInfo.room_number}
               </Text>
             )}
           </View>
@@ -112,7 +158,7 @@ export default function ProfileScreen() {
                   <IconSymbol name="door.left.hand.open" size={20} color={colors.primary} />
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Nomor Kamar</Text>
-                    <Text style={styles.infoValue}>{kostInfo.roomNumber}</Text>
+                    <Text style={styles.infoValue}>{kostInfo.room_number}</Text>
                   </View>
                 </View>
 
@@ -120,7 +166,7 @@ export default function ProfileScreen() {
                   <IconSymbol name="banknote" size={20} color={colors.primary} />
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Biaya Bulanan</Text>
-                    <Text style={styles.infoValue}>Rp {kostInfo.monthlyRent.toLocaleString('id-ID')}</Text>
+                    <Text style={styles.infoValue}>Rp {kostInfo.monthly_rent.toLocaleString('id-ID')}</Text>
                   </View>
                 </View>
               </View>
@@ -137,7 +183,7 @@ export default function ProfileScreen() {
                   <IconSymbol name="person.circle.fill" size={20} color={colors.primary} />
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Nama Pemilik</Text>
-                    <Text style={styles.infoValue}>{kostInfo.ownerName}</Text>
+                    <Text style={styles.infoValue}>{kostInfo.owner_name}</Text>
                   </View>
                 </View>
 
@@ -145,13 +191,22 @@ export default function ProfileScreen() {
                   <IconSymbol name="phone.fill" size={20} color={colors.primary} />
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Nomor Telepon</Text>
-                    <Text style={styles.infoValue}>{kostInfo.ownerPhone}</Text>
+                    <Text style={styles.infoValue}>{kostInfo.owner_phone}</Text>
                   </View>
                 </View>
 
                 <Pressable 
                   style={styles.contactButton}
-                  onPress={() => console.log('Hubungi pemilik')}
+                  onPress={() => {
+                    Alert.alert(
+                      'Hubungi Pemilik',
+                      `Hubungi ${kostInfo.owner_name} di ${kostInfo.owner_phone}?`,
+                      [
+                        { text: 'Batal', style: 'cancel' },
+                        { text: 'Hubungi', onPress: () => console.log('Calling owner:', kostInfo.owner_phone) }
+                      ]
+                    );
+                  }}
                 >
                   <IconSymbol name="phone.circle.fill" size={20} color="#FFFFFF" />
                   <Text style={styles.contactButtonText}>Hubungi Pemilik</Text>
@@ -166,7 +221,10 @@ export default function ProfileScreen() {
             
             <Pressable 
               style={[commonStyles.card, styles.settingItem]}
-              onPress={() => console.log('Edit profil')}
+              onPress={() => {
+                Alert.alert('Info', 'Fitur edit profil akan segera hadir');
+                console.log('Edit profil pressed');
+              }}
             >
               <IconSymbol name="pencil" size={20} color={colors.primary} />
               <Text style={styles.settingText}>Edit Profil</Text>
@@ -175,7 +233,10 @@ export default function ProfileScreen() {
 
             <Pressable 
               style={[commonStyles.card, styles.settingItem]}
-              onPress={() => console.log('Notifikasi')}
+              onPress={() => {
+                Alert.alert('Info', 'Fitur notifikasi akan segera hadir');
+                console.log('Notifikasi pressed');
+              }}
             >
               <IconSymbol name="bell.fill" size={20} color={colors.primary} />
               <Text style={styles.settingText}>Notifikasi</Text>
@@ -188,6 +249,15 @@ export default function ProfileScreen() {
             >
               <IconSymbol name="arrow.clockwise" size={20} color={colors.accent} />
               <Text style={[styles.settingText, { color: colors.accent }]}>Reset Data</Text>
+              <IconSymbol name="chevron.right" size={20} color={colors.textSecondary} />
+            </Pressable>
+
+            <Pressable 
+              style={[commonStyles.card, styles.settingItem, styles.signOutItem]}
+              onPress={handleSignOut}
+            >
+              <IconSymbol name="rectangle.portrait.and.arrow.right" size={20} color="#F44336" />
+              <Text style={[styles.settingText, { color: '#F44336' }]}>Keluar</Text>
               <IconSymbol name="chevron.right" size={20} color={colors.textSecondary} />
             </Pressable>
           </View>
@@ -235,6 +305,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: colors.text,
+    marginBottom: 4,
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   profileSubtext: {
@@ -294,6 +369,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 8,
     gap: 12,
+  },
+  signOutItem: {
+    marginTop: 8,
   },
   settingText: {
     flex: 1,

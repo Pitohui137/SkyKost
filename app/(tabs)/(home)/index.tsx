@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from "react";
-import { Stack } from "expo-router";
-import { ScrollView, StyleSheet, View, Text, Pressable, Platform, ActivityIndicator } from "react-native";
+import { Stack, router } from "expo-router";
+import { ScrollView, StyleSheet, View, Text, Pressable, Platform, ActivityIndicator, Alert, Linking } from "react-native";
 import { IconSymbol } from "@/components/IconSymbol";
 import { colors, commonStyles } from "@/styles/commonStyles";
 import { LinearGradient } from "expo-linear-gradient";
-import { getPayments, getKostInfo, initializeSampleData, Payment, KostInfo } from "@/utils/database";
+import { getPayments, getKostInfo, initializeSampleData, Payment, KostInfo, savePayment } from "@/utils/database";
 
 export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
@@ -40,6 +40,70 @@ export default function HomeScreen() {
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     return nextMonth.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const handlePayNow = () => {
+    Alert.alert(
+      'Bayar Sekarang',
+      'Pilih metode pembayaran untuk melanjutkan',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Pilih Metode',
+          onPress: () => {
+            console.log('Navigating to payment methods');
+            router.push('/(tabs)/paymentMethods');
+          }
+        }
+      ]
+    );
+  };
+
+  const handleViewAllPayments = () => {
+    console.log('Navigating to payment history');
+    router.push('/(tabs)/paymentHistory');
+  };
+
+  const handleContactOwner = () => {
+    if (kostInfo) {
+      Alert.alert(
+        'Hubungi Pemilik',
+        `Hubungi ${kostInfo.owner_name} di ${kostInfo.owner_phone}?`,
+        [
+          { text: 'Batal', style: 'cancel' },
+          {
+            text: 'Telepon',
+            onPress: () => {
+              const phoneNumber = kostInfo.owner_phone.replace(/[^0-9+]/g, '');
+              Linking.openURL(`tel:${phoneNumber}`).catch(err => {
+                console.error('Error opening phone dialer:', err);
+                Alert.alert('Error', 'Tidak dapat membuka aplikasi telepon');
+              });
+            }
+          },
+          {
+            text: 'WhatsApp',
+            onPress: () => {
+              const phoneNumber = kostInfo.owner_phone.replace(/[^0-9]/g, '');
+              const whatsappNumber = phoneNumber.startsWith('0') ? '62' + phoneNumber.substring(1) : phoneNumber;
+              Linking.openURL(`whatsapp://send?phone=${whatsappNumber}`).catch(err => {
+                console.error('Error opening WhatsApp:', err);
+                Alert.alert('Error', 'WhatsApp tidak terinstall atau tidak dapat dibuka');
+              });
+            }
+          }
+        ]
+      );
+    }
+  };
+
+  const handleDownloadReceipt = () => {
+    Alert.alert(
+      'Unduh Bukti Pembayaran',
+      'Fitur unduh bukti pembayaran akan segera hadir. Anda akan dapat mengunduh bukti pembayaran dalam format PDF.',
+      [{ text: 'OK' }]
+    );
+    console.log('Download receipt feature coming soon');
   };
 
   const recentPayments = payments.slice(0, 3);
@@ -77,7 +141,7 @@ export default function HomeScreen() {
           <View style={styles.welcomeSection}>
             <Text style={styles.welcomeText}>Selamat Datang!</Text>
             <Text style={styles.welcomeSubtext}>
-              {kostInfo ? `${kostInfo.name} - Kamar ${kostInfo.roomNumber}` : 'Ringkasan pembayaran kost Anda'}
+              {kostInfo ? `${kostInfo.name} - Kamar ${kostInfo.room_number}` : 'Ringkasan pembayaran kost Anda'}
             </Text>
           </View>
 
@@ -94,13 +158,13 @@ export default function HomeScreen() {
                 <Text style={styles.cardLabel}>Pembayaran Berikutnya</Text>
               </View>
               <Text style={styles.rentAmount}>
-                {kostInfo ? formatCurrency(kostInfo.monthlyRent) : 'Rp 1.500.000'}
+                {kostInfo ? formatCurrency(kostInfo.monthly_rent) : 'Rp 1.500.000'}
               </Text>
               <Text style={styles.rentDueDate}>Jatuh tempo {getNextPaymentDate()}</Text>
               
               <Pressable 
                 style={styles.payButton}
-                onPress={() => console.log('Bayar sekarang pressed')}
+                onPress={handlePayNow}
               >
                 <Text style={styles.payButtonText}>Bayar Sekarang</Text>
                 <IconSymbol name="arrow.right" size={16} color={colors.primary} />
@@ -136,11 +200,11 @@ export default function HomeScreen() {
               </View>
               <View style={styles.kostInfoRow}>
                 <Text style={styles.kostInfoLabel}>Pemilik:</Text>
-                <Text style={styles.kostInfoValue}>{kostInfo.ownerName}</Text>
+                <Text style={styles.kostInfoValue}>{kostInfo.owner_name}</Text>
               </View>
               <View style={styles.kostInfoRow}>
                 <Text style={styles.kostInfoLabel}>Telepon:</Text>
-                <Text style={styles.kostInfoValue}>{kostInfo.ownerPhone}</Text>
+                <Text style={styles.kostInfoValue}>{kostInfo.owner_phone}</Text>
               </View>
               <View style={styles.kostInfoRow}>
                 <Text style={styles.kostInfoLabel}>Alamat:</Text>
@@ -152,7 +216,7 @@ export default function HomeScreen() {
           {/* Recent Payments Section */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Pembayaran Terakhir</Text>
-            <Pressable onPress={() => console.log('Lihat semua pressed')}>
+            <Pressable onPress={handleViewAllPayments}>
               <Text style={styles.viewAllText}>Lihat Semua</Text>
             </Pressable>
           </View>
@@ -190,7 +254,7 @@ export default function HomeScreen() {
           <View style={styles.quickActionsContainer}>
             <Pressable 
               style={[commonStyles.card, styles.quickActionCard]}
-              onPress={() => console.log('Hubungi pemilik pressed')}
+              onPress={handleContactOwner}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: colors.secondary }]}>
                 <IconSymbol name="phone.fill" size={24} color={colors.primary} />
@@ -200,7 +264,7 @@ export default function HomeScreen() {
 
             <Pressable 
               style={[commonStyles.card, styles.quickActionCard]}
-              onPress={() => console.log('Unduh bukti pressed')}
+              onPress={handleDownloadReceipt}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: colors.secondary }]}>
                 <IconSymbol name="arrow.down.doc" size={24} color={colors.primary} />
