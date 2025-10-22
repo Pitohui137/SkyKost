@@ -1,28 +1,65 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
-import { ScrollView, StyleSheet, View, Text, Pressable, Platform } from "react-native";
+import { ScrollView, StyleSheet, View, Text, Pressable, Platform, ActivityIndicator } from "react-native";
 import { IconSymbol } from "@/components/IconSymbol";
 import { colors, commonStyles } from "@/styles/commonStyles";
 import { LinearGradient } from "expo-linear-gradient";
+import { getPayments, getKostInfo, initializeSampleData, Payment, KostInfo } from "@/utils/database";
 
 export default function HomeScreen() {
-  const rentDueDate = "March 1, 2024";
-  const rentAmount = "$1,500";
-  const outstandingBalance = "$0";
-  
-  const recentPayments = [
-    { id: '1', date: 'Feb 1, 2024', amount: '$1,500', status: 'Paid' },
-    { id: '2', date: 'Jan 1, 2024', amount: '$1,500', status: 'Paid' },
-    { id: '3', date: 'Dec 1, 2023', amount: '$1,500', status: 'Paid' },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [kostInfo, setKostInfo] = useState<KostInfo | null>(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      await initializeSampleData();
+      const paymentsData = await getPayments();
+      const kostData = await getKostInfo();
+      setPayments(paymentsData);
+      setKostInfo(kostData);
+      console.log('Data loaded successfully');
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return `Rp ${amount.toLocaleString('id-ID')}`;
+  };
+
+  const getNextPaymentDate = () => {
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    return nextMonth.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const recentPayments = payments.slice(0, 3);
+  const outstandingBalance = 0;
+
+  if (loading) {
+    return (
+      <View style={[commonStyles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Memuat data...</Text>
+      </View>
+    );
+  }
 
   return (
     <>
       {Platform.OS === 'ios' && (
         <Stack.Screen
           options={{
-            title: "Dashboard",
+            title: "Beranda",
             headerLargeTitle: true,
           }}
         />
@@ -38,8 +75,10 @@ export default function HomeScreen() {
         >
           {/* Welcome Section */}
           <View style={styles.welcomeSection}>
-            <Text style={styles.welcomeText}>Welcome back!</Text>
-            <Text style={styles.welcomeSubtext}>Here&apos;s your payment overview</Text>
+            <Text style={styles.welcomeText}>Selamat Datang!</Text>
+            <Text style={styles.welcomeSubtext}>
+              {kostInfo ? `${kostInfo.name} - Kamar ${kostInfo.roomNumber}` : 'Ringkasan pembayaran kost Anda'}
+            </Text>
           </View>
 
           {/* Rent Due Card */}
@@ -52,16 +91,18 @@ export default function HomeScreen() {
             >
               <View style={styles.cardHeader}>
                 <IconSymbol name="calendar" size={32} color="#FFFFFF" />
-                <Text style={styles.cardLabel}>Next Payment Due</Text>
+                <Text style={styles.cardLabel}>Pembayaran Berikutnya</Text>
               </View>
-              <Text style={styles.rentAmount}>{rentAmount}</Text>
-              <Text style={styles.rentDueDate}>Due on {rentDueDate}</Text>
+              <Text style={styles.rentAmount}>
+                {kostInfo ? formatCurrency(kostInfo.monthlyRent) : 'Rp 1.500.000'}
+              </Text>
+              <Text style={styles.rentDueDate}>Jatuh tempo {getNextPaymentDate()}</Text>
               
               <Pressable 
                 style={styles.payButton}
-                onPress={() => console.log('Pay now pressed')}
+                onPress={() => console.log('Bayar sekarang pressed')}
               >
-                <Text style={styles.payButtonText}>Pay Now</Text>
+                <Text style={styles.payButtonText}>Bayar Sekarang</Text>
                 <IconSymbol name="arrow.right" size={16} color={colors.primary} />
               </Pressable>
             </LinearGradient>
@@ -74,63 +115,97 @@ export default function HomeScreen() {
                 <IconSymbol name="dollarsign.circle.fill" size={24} color={colors.primary} />
               </View>
               <View style={styles.balanceTextContainer}>
-                <Text style={styles.balanceLabel}>Outstanding Balance</Text>
-                <Text style={styles.balanceAmount}>{outstandingBalance}</Text>
+                <Text style={styles.balanceLabel}>Tunggakan</Text>
+                <Text style={styles.balanceAmount}>{formatCurrency(outstandingBalance)}</Text>
               </View>
             </View>
-            {outstandingBalance === "$0" && (
+            {outstandingBalance === 0 && (
               <View style={styles.statusBadge}>
                 <IconSymbol name="checkmark.circle.fill" size={16} color="#4CAF50" />
-                <Text style={styles.statusText}>All caught up!</Text>
+                <Text style={styles.statusText}>Semua pembayaran lunas!</Text>
               </View>
             )}
           </View>
 
+          {/* Kost Info Card */}
+          {kostInfo && (
+            <View style={[commonStyles.card, styles.kostInfoCard]}>
+              <View style={styles.kostInfoHeader}>
+                <IconSymbol name="house.fill" size={24} color={colors.primary} />
+                <Text style={styles.kostInfoTitle}>Informasi Kost</Text>
+              </View>
+              <View style={styles.kostInfoRow}>
+                <Text style={styles.kostInfoLabel}>Pemilik:</Text>
+                <Text style={styles.kostInfoValue}>{kostInfo.ownerName}</Text>
+              </View>
+              <View style={styles.kostInfoRow}>
+                <Text style={styles.kostInfoLabel}>Telepon:</Text>
+                <Text style={styles.kostInfoValue}>{kostInfo.ownerPhone}</Text>
+              </View>
+              <View style={styles.kostInfoRow}>
+                <Text style={styles.kostInfoLabel}>Alamat:</Text>
+                <Text style={styles.kostInfoValue}>{kostInfo.address}</Text>
+              </View>
+            </View>
+          )}
+
           {/* Recent Payments Section */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Payments</Text>
-            <Pressable onPress={() => console.log('View all pressed')}>
-              <Text style={styles.viewAllText}>View All</Text>
+            <Text style={styles.sectionTitle}>Pembayaran Terakhir</Text>
+            <Pressable onPress={() => console.log('Lihat semua pressed')}>
+              <Text style={styles.viewAllText}>Lihat Semua</Text>
             </Pressable>
           </View>
 
-          {recentPayments.map((payment) => (
-            <View key={payment.id} style={[commonStyles.card, styles.paymentCard]}>
-              <View style={styles.paymentIconContainer}>
-                <IconSymbol name="checkmark.circle.fill" size={28} color="#4CAF50" />
+          {recentPayments.length > 0 ? (
+            recentPayments.map((payment) => (
+              <View key={payment.id} style={[commonStyles.card, styles.paymentCard]}>
+                <View style={styles.paymentIconContainer}>
+                  <IconSymbol 
+                    name={payment.status === 'lunas' ? 'checkmark.circle.fill' : 'clock.fill'} 
+                    size={28} 
+                    color={payment.status === 'lunas' ? '#4CAF50' : '#FF9800'} 
+                  />
+                </View>
+                <View style={styles.paymentDetails}>
+                  <Text style={styles.paymentDate}>{payment.month} {payment.year}</Text>
+                  <Text style={styles.paymentStatus}>
+                    {payment.status === 'lunas' ? 'Lunas' : payment.status === 'pending' ? 'Pending' : 'Gagal'}
+                  </Text>
+                </View>
+                <Text style={styles.paymentAmount}>{formatCurrency(payment.amount)}</Text>
               </View>
-              <View style={styles.paymentDetails}>
-                <Text style={styles.paymentDate}>{payment.date}</Text>
-                <Text style={styles.paymentStatus}>{payment.status}</Text>
-              </View>
-              <Text style={styles.paymentAmount}>{payment.amount}</Text>
+            ))
+          ) : (
+            <View style={[commonStyles.card, styles.emptyCard]}>
+              <Text style={styles.emptyText}>Belum ada riwayat pembayaran</Text>
             </View>
-          ))}
+          )}
 
           {/* Quick Actions */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <Text style={styles.sectionTitle}>Aksi Cepat</Text>
           </View>
 
           <View style={styles.quickActionsContainer}>
             <Pressable 
               style={[commonStyles.card, styles.quickActionCard]}
-              onPress={() => console.log('Set up auto-pay pressed')}
+              onPress={() => console.log('Hubungi pemilik pressed')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: colors.secondary }]}>
-                <IconSymbol name="arrow.clockwise" size={24} color={colors.primary} />
+                <IconSymbol name="phone.fill" size={24} color={colors.primary} />
               </View>
-              <Text style={styles.quickActionText}>Set Up Auto-Pay</Text>
+              <Text style={styles.quickActionText}>Hubungi Pemilik</Text>
             </Pressable>
 
             <Pressable 
               style={[commonStyles.card, styles.quickActionCard]}
-              onPress={() => console.log('Download receipt pressed')}
+              onPress={() => console.log('Unduh bukti pressed')}
             >
               <View style={[styles.quickActionIcon, { backgroundColor: colors.secondary }]}>
                 <IconSymbol name="arrow.down.doc" size={24} color={colors.primary} />
               </View>
-              <Text style={styles.quickActionText}>Download Receipt</Text>
+              <Text style={styles.quickActionText}>Unduh Bukti</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -140,6 +215,15 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
   scrollView: {
     flex: 1,
   },
@@ -185,7 +269,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   rentAmount: {
-    fontSize: 48,
+    fontSize: 42,
     fontWeight: '800',
     color: '#FFFFFF',
     marginBottom: 4,
@@ -211,7 +295,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   balanceCard: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   balanceHeader: {
     flexDirection: 'row',
@@ -255,6 +339,36 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
     fontWeight: '600',
   },
+  kostInfoCard: {
+    marginBottom: 24,
+    backgroundColor: colors.secondary,
+  },
+  kostInfoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 8,
+  },
+  kostInfoTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  kostInfoRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  kostInfoLabel: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    width: 80,
+  },
+  kostInfoValue: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '500',
+  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -297,6 +411,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
+  },
+  emptyCard: {
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: colors.textSecondary,
   },
   quickActionsContainer: {
     flexDirection: 'row',

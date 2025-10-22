@@ -13,25 +13,25 @@ export default function TabLayout() {
       name: '(home)',
       route: '/(tabs)/(home)/',
       icon: 'house.fill',
-      label: 'Dashboard',
+      label: 'Beranda',
     },
     {
       name: 'paymentMethods',
       route: '/(tabs)/paymentMethods',
       icon: 'creditcard.fill',
-      label: 'Payment',
+      label: 'Pembayaran',
     },
     {
       name: 'paymentHistory',
       route: '/(tabs)/paymentHistory',
       icon: 'clock.fill',
-      label: 'History',
+      label: 'Riwayat',
     },
     {
       name: 'profile',
       route: '/(tabs)/profile',
       icon: 'person.fill',
-      label: 'Profile',
+      label: 'Profil',
     },
   ];
 
@@ -41,19 +41,19 @@ export default function TabLayout() {
       <NativeTabs>
         <NativeTabs.Trigger name="(home)">
           <Icon sf="house.fill" drawable="ic_home" />
-          <Label>Dashboard</Label>
+          <Label>Beranda</Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="paymentMethods">
           <Icon sf="creditcard.fill" drawable="ic_payment" />
-          <Label>Payment</Label>
+          <Label>Pembayaran</Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="paymentHistory">
           <Icon sf="clock.fill" drawable="ic_history" />
-          <Label>History</Label>
+          <Label>Riwayat</Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="profile">
           <Icon sf="person.fill" drawable="ic_profile" />
-          <Label>Profile</Label>
+          <Label>Profil</Label>
         </NativeTabs.Trigger>
       </NativeTabs>
     );

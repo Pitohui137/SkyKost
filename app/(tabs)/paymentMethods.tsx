@@ -1,67 +1,117 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
-import { ScrollView, StyleSheet, View, Text, Pressable, Platform, TextInput, Alert } from "react-native";
+import { ScrollView, StyleSheet, View, Text, Pressable, Platform, Alert, ActivityIndicator } from "react-native";
 import { IconSymbol } from "@/components/IconSymbol";
 import { colors, commonStyles } from "@/styles/commonStyles";
-
-interface PaymentMethod {
-  id: string;
-  type: 'card' | 'bank';
-  name: string;
-  last4: string;
-  isDefault: boolean;
-}
+import { getPaymentMethods, setDefaultPaymentMethod, deletePaymentMethod, PaymentMethod } from "@/utils/database";
 
 export default function PaymentMethodsScreen() {
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
-    { id: '1', type: 'card', name: 'Visa', last4: '4242', isDefault: true },
-    { id: '2', type: 'bank', name: 'Chase Bank', last4: '1234', isDefault: false },
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+
+  useEffect(() => {
+    loadPaymentMethods();
+  }, []);
+
+  const loadPaymentMethods = async () => {
+    try {
+      setLoading(true);
+      const data = await getPaymentMethods();
+      setPaymentMethods(data);
+      console.log('Payment methods loaded:', data.length);
+    } catch (error) {
+      console.error('Error loading payment methods:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddPaymentMethod = () => {
     Alert.alert(
-      'Add Payment Method',
-      'This feature would open a form to add a new payment method.',
+      'Tambah Metode Pembayaran',
+      'Fitur ini akan membuka form untuk menambah metode pembayaran baru.',
       [{ text: 'OK' }]
     );
-    console.log('Add payment method pressed');
+    console.log('Tambah metode pembayaran pressed');
   };
 
-  const handleSetDefault = (id: string) => {
-    setPaymentMethods(methods =>
-      methods.map(method => ({
-        ...method,
-        isDefault: method.id === id,
-      }))
-    );
-    console.log('Set default payment method:', id);
+  const handleSetDefault = async (id: string) => {
+    try {
+      await setDefaultPaymentMethod(id);
+      await loadPaymentMethods();
+      console.log('Default payment method set:', id);
+    } catch (error) {
+      console.error('Error setting default payment method:', error);
+      Alert.alert('Error', 'Gagal mengatur metode pembayaran default');
+    }
   };
 
   const handleRemove = (id: string) => {
     Alert.alert(
-      'Remove Payment Method',
-      'Are you sure you want to remove this payment method?',
+      'Hapus Metode Pembayaran',
+      'Apakah Anda yakin ingin menghapus metode pembayaran ini?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Batal', style: 'cancel' },
         {
-          text: 'Remove',
+          text: 'Hapus',
           style: 'destructive',
-          onPress: () => {
-            setPaymentMethods(methods => methods.filter(method => method.id !== id));
-            console.log('Removed payment method:', id);
+          onPress: async () => {
+            try {
+              await deletePaymentMethod(id);
+              await loadPaymentMethods();
+              console.log('Payment method removed:', id);
+            } catch (error) {
+              console.error('Error removing payment method:', error);
+              Alert.alert('Error', 'Gagal menghapus metode pembayaran');
+            }
           },
         },
       ]
     );
   };
 
+  const getMethodIcon = (type: PaymentMethod['type']) => {
+    switch (type) {
+      case 'card':
+        return 'creditcard.fill';
+      case 'bank':
+        return 'building.columns.fill';
+      case 'ewallet':
+        return 'wallet.pass.fill';
+      default:
+        return 'creditcard.fill';
+    }
+  };
+
+  const getMethodColor = (type: PaymentMethod['type']) => {
+    switch (type) {
+      case 'card':
+        return colors.secondary;
+      case 'bank':
+        return colors.highlight;
+      case 'ewallet':
+        return '#E1F5FE';
+      default:
+        return colors.secondary;
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={[commonStyles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Memuat metode pembayaran...</Text>
+      </View>
+    );
+  }
+
   return (
     <>
       {Platform.OS === 'ios' && (
         <Stack.Screen
           options={{
-            title: "Payment Methods",
+            title: "Metode Pembayaran",
             headerLargeTitle: true,
           }}
         />
@@ -77,9 +127,9 @@ export default function PaymentMethodsScreen() {
         >
           {/* Header Section */}
           <View style={styles.headerSection}>
-            <Text style={styles.headerTitle}>Manage Payment Methods</Text>
+            <Text style={styles.headerTitle}>Kelola Metode Pembayaran</Text>
             <Text style={styles.headerSubtext}>
-              Add or remove payment methods for your rent payments
+              Tambah atau hapus metode pembayaran untuk kost Anda
             </Text>
           </View>
 
@@ -91,70 +141,77 @@ export default function PaymentMethodsScreen() {
             <View style={styles.addButtonIcon}>
               <IconSymbol name="plus" size={24} color={colors.primary} />
             </View>
-            <Text style={styles.addButtonText}>Add New Payment Method</Text>
+            <Text style={styles.addButtonText}>Tambah Metode Pembayaran Baru</Text>
             <IconSymbol name="chevron.right" size={20} color={colors.textSecondary} />
           </Pressable>
 
           {/* Payment Methods List */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Your Payment Methods</Text>
+            <Text style={styles.sectionTitle}>Metode Pembayaran Anda</Text>
           </View>
 
-          {paymentMethods.map((method) => (
-            <View key={method.id} style={[commonStyles.card, styles.methodCard]}>
-              <View style={styles.methodHeader}>
-                <View style={[
-                  styles.methodIcon,
-                  { backgroundColor: method.type === 'card' ? colors.secondary : colors.highlight }
-                ]}>
-                  <IconSymbol 
-                    name={method.type === 'card' ? 'creditcard.fill' : 'building.columns.fill'} 
-                    size={24} 
-                    color={colors.primary} 
-                  />
-                </View>
-                <View style={styles.methodDetails}>
-                  <Text style={styles.methodName}>{method.name}</Text>
-                  <Text style={styles.methodNumber}>
-                    {method.type === 'card' ? '•••• ' : 'Account ••••'}
-                    {method.last4}
-                  </Text>
-                </View>
-                {method.isDefault && (
-                  <View style={styles.defaultBadge}>
-                    <Text style={styles.defaultBadgeText}>Default</Text>
+          {paymentMethods.length > 0 ? (
+            paymentMethods.map((method) => (
+              <View key={method.id} style={[commonStyles.card, styles.methodCard]}>
+                <View style={styles.methodHeader}>
+                  <View style={[
+                    styles.methodIcon,
+                    { backgroundColor: getMethodColor(method.type) }
+                  ]}>
+                    <IconSymbol 
+                      name={getMethodIcon(method.type)} 
+                      size={24} 
+                      color={colors.primary} 
+                    />
                   </View>
-                )}
-              </View>
+                  <View style={styles.methodDetails}>
+                    <Text style={styles.methodName}>{method.name}</Text>
+                    <Text style={styles.methodNumber}>
+                      {method.type === 'card' ? '•••• ' : method.type === 'ewallet' ? '' : 'Rekening ••••'}
+                      {method.last4}
+                    </Text>
+                  </View>
+                  {method.isDefault && (
+                    <View style={styles.defaultBadge}>
+                      <Text style={styles.defaultBadgeText}>Default</Text>
+                    </View>
+                  )}
+                </View>
 
-              <View style={styles.methodActions}>
-                {!method.isDefault && (
+                <View style={styles.methodActions}>
+                  {!method.isDefault && (
+                    <Pressable 
+                      style={styles.actionButton}
+                      onPress={() => handleSetDefault(method.id)}
+                    >
+                      <IconSymbol name="star" size={18} color={colors.primary} />
+                      <Text style={styles.actionButtonText}>Jadikan Default</Text>
+                    </Pressable>
+                  )}
                   <Pressable 
-                    style={styles.actionButton}
-                    onPress={() => handleSetDefault(method.id)}
+                    style={[styles.actionButton, styles.removeButton]}
+                    onPress={() => handleRemove(method.id)}
                   >
-                    <IconSymbol name="star" size={18} color={colors.primary} />
-                    <Text style={styles.actionButtonText}>Set as Default</Text>
+                    <IconSymbol name="trash" size={18} color={colors.accent} />
+                    <Text style={[styles.actionButtonText, styles.removeButtonText]}>Hapus</Text>
                   </Pressable>
-                )}
-                <Pressable 
-                  style={[styles.actionButton, styles.removeButton]}
-                  onPress={() => handleRemove(method.id)}
-                >
-                  <IconSymbol name="trash" size={18} color={colors.accent} />
-                  <Text style={[styles.actionButtonText, styles.removeButtonText]}>Remove</Text>
-                </Pressable>
+                </View>
               </View>
+            ))
+          ) : (
+            <View style={[commonStyles.card, styles.emptyCard]}>
+              <IconSymbol name="creditcard" size={48} color={colors.textSecondary} />
+              <Text style={styles.emptyText}>Belum ada metode pembayaran</Text>
             </View>
-          ))}
+          )}
 
           {/* Security Notice */}
           <View style={styles.securityNotice}>
             <IconSymbol name="lock.shield.fill" size={24} color={colors.primary} />
             <View style={styles.securityTextContainer}>
-              <Text style={styles.securityTitle}>Secure & Encrypted</Text>
+              <Text style={styles.securityTitle}>Aman & Terenkripsi</Text>
               <Text style={styles.securityText}>
-                Your payment information is encrypted and stored securely
+                Informasi pembayaran Anda dienkripsi dan disimpan dengan aman
               </Text>
             </View>
           </View>
@@ -165,6 +222,15 @@ export default function PaymentMethodsScreen() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
   scrollView: {
     flex: 1,
   },
@@ -291,6 +357,15 @@ const styles = StyleSheet.create({
   },
   removeButtonText: {
     color: colors.accent,
+  },
+  emptyCard: {
+    alignItems: 'center',
+    paddingVertical: 48,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 12,
   },
   securityNotice: {
     flexDirection: 'row',
