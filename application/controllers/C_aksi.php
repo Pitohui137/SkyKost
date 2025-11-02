@@ -36,6 +36,7 @@ class C_aksi extends CI_Controller {
         $no_ktp         = $this->input->post('no_ktp');
         $alamat         = $this->input->post('alamat');
         $no             = $this->input->post('no');
+        $password = hash('sha1', $this->input->post('password'));
         $tgl_masuk      = $this->input->post('tgl_masuk');
         $tgl_keluar     = $this->input->post('tgl_keluar');
         $biaya          = $this->input->post('biaya');
@@ -46,6 +47,7 @@ class C_aksi extends CI_Controller {
             'no_ktp'        => $no_ktp,
             'alamat'        => $alamat,
             'no'            => $no,
+            'password'      => $password,
             'tgl_masuk'     => $tgl_masuk,
             'tgl_keluar'    => $tgl_keluar,
             'biaya'         => $biaya,
@@ -221,51 +223,43 @@ class C_aksi extends CI_Controller {
         }
     }
 
-    // tidak terpakai
-    // function aksi_tambah_user(){
-    //     $nama           = $this->input->post('nama');
-    //     $username       = $this->input->post('username');
-    //     $password       = sha1($this->input->post('password'));
+  function get_pendapatan_tahunan(){
+        $tahun = $this->input->post('tahun');
+        
+        if (!$tahun) {
+            $tahun = date('Y');
+        }
 
-    //     $user_baru = array(
-    //         'nama'           => $nama,
-    //         'username'       => $username,
-    //         'password'       => $password
-    //     );
-
-    //     if ($this->m_data->insert_user($user_baru) == true){
-    //         $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah user '.$nama.' dengan username '.$username.'")');
-    //         redirect (base_url('daftar-user'));
-    //     }
-    //     else {
-    //         $this->session->set_flashdata('pesan', 'gagal_tambah_user');
-    //         redirect (base_url('tambah-user'));
-    //     }
-    // }
-
-    // tidak terpakai
-    // function aksi_hapus_user($username = null){
-
-    //     if (!isset($username)) redirect('daftar-user');
-
-    //     $user = $this->m_data->data_user(array('username' => $username))->row();
-
-    //     if (!$user){
-    //         show_404();
-    //     }
-    //     else if ($user->username == 'admin'){
-    //         $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
-    //         redirect (base_url('daftar-user'));
-    //     }
-    //     else {
-    //         if ($this->m_data->delete_user($username) == true){
-    //             $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menghapus user '.$user->nama.' dengan username '.$user->username.'")');
-    //         }
-    //         else {
-    //             $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
-    //         }
-    //         redirect (base_url('daftar-user'));
-    //     }
-    // }
+        $this->load->model('m_dashboard');
+        
+        $data = array();
+        $bulan_indo = array(
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        );
+        
+        for ($bulan = 1; $bulan <= 12; $bulan++) {
+            $bulan_str = str_pad($bulan, 2, '0', STR_PAD_LEFT);
+            
+            // Total pendapatan
+            $this->db->select_sum('bayar');
+            $this->db->like('tgl_bayar', $bulan_str . '-' . $tahun, 'before');
+            $result_total = $this->db->get('keuangan')->row();
+            
+            // Jumlah transaksi
+            $this->db->where('tgl_bayar LIKE', '%-' . $bulan_str . '-' . $tahun);
+            $jumlah_transaksi = $this->db->count_all_results('keuangan');
+            
+            $data[] = array(
+                'bulan' => $bulan_indo[$bulan],
+                'bulan_num' => $bulan,
+                'total' => $result_total->bayar ? $result_total->bayar : 0,
+                'jumlah_transaksi' => $jumlah_transaksi
+            );
+        }
+        
+        echo json_encode($data);
+    }
 }
 

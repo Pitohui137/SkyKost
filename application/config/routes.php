@@ -69,7 +69,7 @@ $route['edit-penghuni/(:num)'] = 'c_admin/edit_penghuni/$1';
 $route['edit-pembayaran/(:num)'] = 'c_admin/edit_pembayaran/$1';
 $route['edit-harga-kamar/(:any)'] = 'c_admin/edit_harga_kamar/$1';
 
-$route['get-prodi'] = 'c_aksi/get_prodi';
+
 $route['get-kamar'] = 'c_aksi/get_kamar';
 $route['get-detail-kamar'] = 'c_aksi/get_detail_kamar';
 $route['get-detail-penghuni'] = 'c_aksi/get_detail_penghuni';
@@ -91,6 +91,33 @@ $route['logout'] = 'c_login/logout';
 $route['aksi-login'] = 'c_login/aksi_login';
 
 $route['(c_admin|c_aksi|c_login)/(:any)'] = 'error404';
+
+// Route untuk Penghuni
+$route['penghuni/login'] = 'c_login_penghuni/login';
+$route['penghuni/aksi-login'] = 'c_login_penghuni/aksi_login';
+$route['penghuni/logout'] = 'c_login_penghuni/logout';
+
+$route['penghuni/dashboard'] = 'c_penghuni/dashboard';
+$route['penghuni/profil'] = 'c_penghuni/profil';
+$route['penghuni/riwayat-pembayaran'] = 'c_penghuni/riwayat_pembayaran';
+$route['penghuni/ubah-password'] = 'c_penghuni/ubah_password';
+$route['penghuni/aksi-ubah-password'] = 'c_penghuni/aksi_ubah_password';
+
+// Route Penghuni - Pembayaran
+$route['penghuni/ajukan-pembayaran'] = 'c_penghuni/ajukan_pembayaran';
+
+// Route Admin - Konfirmasi Pembayaran
+$route['konfirmasi-pembayaran'] = 'c_admin/konfirmasi_pembayaran';
+$route['approve-pembayaran/(:num)'] = 'c_admin/approve_pembayaran/$1';
+$route['reject-pembayaran/(:num)'] = 'c_admin/reject_pembayaran/$1';
+$route['delete-pengajuan/(:num)'] = 'c_admin/delete_pengajuan/$1';
+
+// Route untuk Dashboard AJAX
+$route['get-pendapatan-tahunan'] = 'c_aksi/get_pendapatan_tahunan';
+
+// Route Penghuni - Upload Foto
+$route['penghuni/upload-foto'] = 'c_penghuni/upload_foto';
+
 
 $route['404_override'] = 'error404';
 $route['translate_uri_dashes'] = FALSE;

@@ -12,20 +12,7 @@ class C_admin extends CI_Controller {
         $this->load->model('m_data');
     }
 
-    function dasbor(){
-        $data['judul_halaman'] = 'Dasbor';
-        $data['pesan'] = $this->session->flashdata('pesan');
-        $data['username'] = $this->session->userdata('username');
-
-        $this->load->view('_partials/v_head', $data);
-        $this->load->view('_partials/v_header');
-        $this->load->view('_partials/v_sidebar', $data);
-        $this->load->view('v_dasbor'); //page content
-        $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
-        $this->load->view('_partials/v_preloader');
-        $this->load->view('_partials/v_js', $data);
-    }
+   
 
     // superadmin only
     // tidak terpakai
@@ -224,5 +211,94 @@ class C_admin extends CI_Controller {
         $this->load->view('v_ubah_pass');
         $this->load->view('_partials/v_preloader');
         $this->load->view('_partials/v_js_form');
+    }
+    function konfirmasi_pembayaran(){
+        $data['judul_halaman'] = 'Konfirmasi Pembayaran';
+        $data['pesan'] = $this->session->flashdata('pesan');
+        $data['username'] = $this->session->userdata('username');
+        
+        $this->load->model('m_pembayaran');
+        $data['pengajuan'] = $this->m_pembayaran->get_all_pengajuan();
+
+        $this->load->view('_partials/v_head', $data);
+        $this->load->view('_partials/v_header');
+        $this->load->view('_partials/v_sidebar', $data);
+        $this->load->view('_partials/v_breadcrump', $data);
+        $this->load->view('v_konfirmasi_pembayaran', $data);
+        $this->load->view('_partials/v_footer');
+        $this->load->view('_partials/v_preloader');
+        $this->load->view('_partials/v_js', $data);
+    }
+
+    function approve_pembayaran($id_pengajuan){
+        $this->load->model('m_pembayaran');
+        
+        if ($this->m_pembayaran->approve_pengajuan($id_pengajuan)){
+            $this->session->set_flashdata('pesan', 'toastr.success("Pembayaran berhasil disetujui dan masuk ke riwayat pembayaran")');
+        } else {
+            $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
+        }
+
+        redirect(base_url('konfirmasi-pembayaran'));
+    }
+
+    function reject_pembayaran($id_pengajuan){
+        $this->load->model('m_pembayaran');
+        
+        if ($this->m_pembayaran->reject_pengajuan($id_pengajuan)){
+            $this->session->set_flashdata('pesan', 'toastr.warning("Pembayaran ditolak")');
+        } else {
+            $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
+        }
+
+        redirect(base_url('konfirmasi-pembayaran'));
+    }
+
+    function delete_pengajuan($id_pengajuan){
+        $this->load->model('m_pembayaran');
+        
+        if ($this->m_pembayaran->delete_pengajuan($id_pengajuan)){
+            $this->session->set_flashdata('pesan', 'toastr.success("Pengajuan berhasil dihapus")');
+        } else {
+            $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
+        }
+
+        redirect(base_url('konfirmasi-pembayaran'));
+    }
+
+      function dasbor(){
+        $data['judul_halaman'] = 'Dasbor';
+        $data['pesan'] = $this->session->flashdata('pesan');
+        $data['username'] = $this->session->userdata('username');
+
+        // Load model pembayaran
+        $this->load->model('m_pembayaran');
+        $this->load->model('m_dashboard');
+
+        // Statistik Umum
+        $data['total_kamar'] = $this->m_data->data_kamar()->num_rows();
+        $data['kamar_terisi'] = $this->m_dashboard->get_kamar_terisi();
+        $data['total_penghuni'] = $this->m_data->detail_penghuni(['status' => 'Penghuni'])->num_rows();
+        $data['pengajuan_pending'] = $this->m_pembayaran->get_all_pengajuan(['status' => 'pending']);
+        
+        // Pendapatan
+        $data['pendapatan_bulan_ini'] = $this->m_dashboard->get_pendapatan_bulan_ini();
+        $data['pendapatan_tahun_ini'] = $this->m_dashboard->get_pendapatan_tahun_ini();
+        $data['total_piutang'] = $this->m_dashboard->get_total_piutang();
+        
+        // Data untuk grafik pendapatan per bulan (12 bulan terakhir)
+        $data['grafik_pendapatan'] = $this->m_dashboard->get_pendapatan_12_bulan();
+
+        // Pembayaran terbaru
+        $data['pembayaran_terbaru'] = $this->m_data->detail_pembayaran(['1' => '1'])->result();
+        $data['pembayaran_terbaru'] = array_slice($data['pembayaran_terbaru'], 0, 5);
+
+        $this->load->view('_partials/v_head', $data);
+        $this->load->view('_partials/v_header');
+        $this->load->view('_partials/v_sidebar', $data);
+        $this->load->view('v_dasbor', $data); //page content
+        $this->load->view('_partials/v_footer');
+        $this->load->view('_partials/v_preloader');
+        $this->load->view('_partials/v_js', $data);
     }
 }

@@ -45,6 +45,25 @@
                 });
             });
         });
+        // Logout untuk penghuni
+$(document).ready(function(){
+    $('#logout-alert-penghuni').click(function(){
+        Swal.fire({
+            title: 'Keluar dari Sistem',
+            text: 'Apakah Anda yakin ingin keluar dari sistem?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#dd3333',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Keluar',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.value) {
+                window.location.href = '<?= base_url("penghuni/logout") ?>';
+            }
+        });
+    });
+});
     </script>
     <script type="text/javascript">
         $(document).ready(function(){
@@ -126,6 +145,112 @@
                 });
             });
         });
+        // Detail Pengajuan Pembayaran
+$(document).on("click", ".detail-pengajuan", function(){
+    var nama = $(this).data("nama");
+    var kamar = $(this).data("kamar");
+    var nominal = $(this).data("nominal");
+    var metode = $(this).data("metode");
+    var keterangan = $(this).data("keterangan");
+    var bukti = $(this).data("bukti");
+    
+    Swal.fire({
+        width: 700,
+        html: `<div class="text-left">
+                    <h5>Detail Pengajuan Pembayaran</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <td width="30%"><strong>Nama</strong></td>
+                            <td>`+ nama +`</td>
+                        </tr>
+                        <tr>
+                            <td><strong>No. Kamar</strong></td>
+                            <td>`+ kamar +`</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nominal</strong></td>
+                            <td>Rp`+ nominal +`</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Metode</strong></td>
+                            <td>`+ metode +`</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Keterangan</strong></td>
+                            <td>`+ (keterangan || '-') +`</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bukti Transfer</strong></td>
+                            <td><img src="`+ bukti +`" class="img-fluid" style="max-width: 300px;"></td>
+                        </tr>
+                    </table>
+                </div>`
+    });
+});
+
+// Approve Pengajuan
+$(document).on("click", ".approve-pengajuan", function(e){
+    e.preventDefault();
+    var url = $(this).attr('href');
+    
+    Swal.fire({
+        title: 'Setujui Pembayaran',
+        text: 'Apakah Anda yakin ingin menyetujui pembayaran ini?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Setujui',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.value) {
+            window.location.href = url;
+        }
+    });
+});
+
+// Reject Pengajuan
+$(document).on("click", ".reject-pengajuan", function(e){
+    e.preventDefault();
+    var url = $(this).attr('href');
+    
+    Swal.fire({
+        title: 'Tolak Pembayaran',
+        text: 'Apakah Anda yakin ingin menolak pembayaran ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ffc107',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Tolak',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.value) {
+            window.location.href = url;
+        }
+    });
+});
+
+// Hapus Pengajuan
+$(document).ready(function(){
+    $(".hapus-pengajuan").click(function(){
+        var id_pengajuan = $(this).attr('id');
+        
+        Swal.fire({
+            title: 'Hapus Pengajuan',
+            text: 'Apakah Anda yakin ingin menghapus pengajuan ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dd3333',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.value) {
+                window.location.href = '<?= base_url("delete-pengajuan/") ?>' + id_pengajuan;
+            }
+        });
+    });
+});
         $(document).on("click", ".detail-penghuni", function(){
             var id_penghuni = $(this).attr("id");
             $.ajax({

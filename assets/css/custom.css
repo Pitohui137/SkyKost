@@ -271,7 +271,7 @@ form#login-form, form#register-form, form#changepass-form{
   color: #fff
 }
 
-/*NAVBAR UNDIP*/
+/*NAVBAR*/
   .nav-undip {
     padding-left: 0 !important;
     vertical-align: middle;
@@ -345,3 +345,254 @@ form#login-form, form#register-form, form#changepass-form{
   #tabel-user_wrapper, #tabel-penghuni_wrapper, #tabel-responsif_wrapper{
     overflow-x: auto;
   }
+  
+  /* Dashboard Cards */
+.widget-stat {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.widget-stat:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.widget-stat-icon {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 48px;
+    opacity: 0.3;
+}
+
+/* Card ibox styling */
+.ibox {
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 5px;
+}
+
+.ibox-head {
+    border-bottom: 1px solid #e4e4e4;
+    padding: 15px 20px;
+    background: #fafafa;
+    border-radius: 5px 5px 0 0;
+}
+
+/* Tabel styling */
+#tabelPendapatan tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+#tabelPendapatan tbody tr:hover {
+    background-color: #f0f8ff !important;
+}
+
+/* Loading animation */
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+}
+
+.loading-spinner i {
+    font-size: 32px;
+    color: #007bff;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .widget-stat h2 {
+        font-size: 24px;
+    }
+    
+    .widget-stat-icon {
+        font-size: 32px;
+    }
+}
+
+/* DASHBOARD PENGHUNI STYLING*/
+
+/* Smooth Animations */
+.fade-in-up {
+    animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Card Hover Effects */
+.ibox {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.ibox:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+/* Widget Cards */
+.widget-card .ibox-body {
+    position: relative;
+    overflow: hidden;
+}
+
+.widget-card .ibox-body::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+.widget-card:hover .ibox-body::before {
+    opacity: 1;
+    top: -25%;
+    right: -25%;
+}
+
+/* Badge Styling */
+.badge {
+    padding: 6px 12px;
+    font-weight: 500;
+    border-radius: 20px;
+}
+
+/* Table Styling */
+.table-hover tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f0f8ff;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Button Enhancements */
+.btn {
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Input Focus Effects */
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Custom File Input */
+.custom-file-input:focus ~ .custom-file-label {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Image Thumbnail */
+.img-thumbnail {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.img-thumbnail:hover {
+    border-color: #667eea;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Gradient Text */
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Loading Animation */
+.loading {
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .widget-card .ibox-body {
+        padding: 20px !important;
+    }
+    
+    .widget-icon {
+        width: 50px !important;
+        height: 50px !important;
+        line-height: 50px !important;
+        font-size: 24px !important;
+    }
+    
+    .payment-option {
+        padding: 12px;
+    }
+    
+    .payment-icon {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 20px;
+    }
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Card Shadow on Scroll */
+.sticky-top {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}

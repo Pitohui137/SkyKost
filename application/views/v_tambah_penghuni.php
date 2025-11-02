@@ -45,12 +45,18 @@
                                     <input class="form-control" type="text" name="no" placeholder="No. Telp/HP Penghuni" maxlength="30" oninput="this.value = this.value.replace(/[^0-9 +]/g, '');" required>
                                 </div>
                             </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label">Password</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="password" name="password" placeholder="Password" maxlength="200" required>
+                                </div>
+                            </div>
                             <div class="form-group row" id="tgl_huni">
                                 <label class="col-sm-3 col-form-label">Masa Huni</label>
                                 <div class="col-sm-9 input-daterange input-group" id="datepicker">
                                     <input class="input-sm form-control" type="text" name="tgl_masuk" id="tgl_masuk" placeholder="Pilih Tanggal Masuk" autocomplete="off" required>
                                     <span class="input-group-addon p-l-10 p-r-10">s.d.</span>
-                                    <input class="input-sm form-control" type="text" name="tgl_keluar" id="tgl_keluar" placeholder="Pilih Tanggal Keluar" value="<?= '31'.'-'.'07'.'-'.date('Y'); ?>" required>
+                                    <input class="input-sm form-control" type="text" name="tgl_keluar" id="tgl_keluar" placeholder="Pilih Tanggal Keluar" value="<?= '31'.'-'.'07'.'-'.date('Y'); ?>">
                                 </div>
                             </div>
                             <div class="form-group row">

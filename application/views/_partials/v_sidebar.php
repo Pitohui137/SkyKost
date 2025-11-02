@@ -11,7 +11,7 @@
                 <ul class="side-menu metismenu">
                     <li>
                         <a <?php if ($judul_halaman == 'Dasbor') echo 'class="active"' ?> href="<?= base_url('dasbor') ?>"><i class="sidebar-item-icon fa fa-dashboard"></i>
-                            <span class="nav-label">Dasbor</span>
+                            <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
                     <li>
@@ -46,12 +46,19 @@
                             <span class="nav-label">Daftar Eks-Penghuni</span>
                         </a>
                     </li> -->
-                    <li class="heading">KEUANGAN</li>
-                    <li>
-                        <a <?php if ($judul_halaman == 'Riwayat Pembayaran') echo 'class="active"' ?> href="<?= base_url('riwayat-pembayaran') ?>"><i class="sidebar-item-icon fa fa-history"></i>
-                            <span class="nav-label">Riwayat Pembayaran</span>
-                        </a>
-                    </li>
+                   <li class="heading">KEUANGAN</li>
+<li>
+    <a <?php if ($judul_halaman == 'Konfirmasi Pembayaran') echo 'class="active"' ?> href="<?= base_url('konfirmasi-pembayaran') ?>">
+        <i class="sidebar-item-icon fa fa-check-circle"></i>
+        <span class="nav-label">Konfirmasi Pembayaran</span>
+    </a>
+</li>
+<li>
+    <a <?php if ($judul_halaman == 'Riwayat Pembayaran') echo 'class="active"' ?> href="<?= base_url('riwayat-pembayaran') ?>">
+        <i class="sidebar-item-icon fa fa-history"></i>
+        <span class="nav-label">Riwayat Pembayaran</span>
+    </a>
+</li>
                     <!-- <li>
                         <a <?php if ($judul_halaman == 'Laporan Keuangan') echo 'class="active"' ?> href="<?= base_url('laporan-keuangan') ?>"><i class="sidebar-item-icon fa fa-money"></i>
                             <span class="nav-label">Laporan Keuangan</span>
