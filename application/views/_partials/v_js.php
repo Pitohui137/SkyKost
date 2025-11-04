@@ -117,6 +117,62 @@ $(document).ready(function(){
         });
     </script>
     <script type="text/javascript">
+        
+        $(document).on("click", ".detail-penghuni", function(){
+    var id_penghuni = $(this).attr("id");
+    $.ajax({
+        url: "<?= base_url('get-detail-penghuni') ?>",
+        method: "POST",
+        data: {id_penghuni: id_penghuni},
+        dataType: "json",
+        cache: false,
+        success: function(data){
+            Swal.fire({
+                width: 700,
+                html: `<div class="table-responsive">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td width="30%"><label>No. Kamar</label></td>
+                                    <td width="70%">`+ data.no_kamar +`</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%"><label>Nama</label></td>
+                                    <td width="70%">`+ data.nama +`</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%"><label>No. KTP</label></td>
+                                    <td width="70%">`+ data.no_ktp +`</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%"><label>Alamat Asal</label></td>
+                                    <td width="70%">`+ data.alamat +`</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%"><label>No. Telp/HP</label></td>
+                                    <td width="70%">`+ data.no +`</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%"><label>Tanggal Mulai Huni</label></td>
+                                    <td width="70%">`+ data.tgl_masuk +`</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%"><label>Harga per Bulan</label></td>
+                                    <td width="70%">Rp`+ parseInt(data.harga_per_bulan).toLocaleString('id-ID') +`</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%"><label>Jumlah Telah Dibayar</label></td>
+                                    <td width="70%">Rp`+ parseInt(data.bayar).toLocaleString('id-ID') +`</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%"><label>Sisa Piutang</label></td>
+                                    <td width="70%">Rp`+ parseInt(data.piutang).toLocaleString('id-ID') +`</td>
+                                </tr>
+                            </table>
+                        </div>`
+            });
+        }
+    });
+});
         //daftar penghuni
         $(document).ready(function(){
             $.fn.dataTable.moment('D-M-YYYY');
@@ -286,11 +342,11 @@ $(document).ready(function(){
                                         </tr>
                                         <tr>
                                             <td width="30%"><label>Tanggal Huni</label></td>
-                                            <td width="70%">`+ data.tgl_masuk +` s/d `+ data.tgl_keluar +`</td>
+                                            <td width="70%">`+ data.tgl_masuk `</td>
                                         </tr>
                                         <tr>
                                             <td width="30%"><label>Jumlah Harus Dibayar</label></td>
-                                            <td width="70%"> Rp`+ data.biaya +`</td>
+                                            <td width="70%"> Rp`+ data.harga_per_bulan +`</td>
                                         </tr>
                                         <tr>
                                             <td width="30%"><label>Jumlah Telah Dibayar</label></td>
@@ -324,9 +380,7 @@ $(document).ready(function(){
             $("#tgl_masuk").mask("99-99-9999", {
                 placeholder: "dd-mm-yyyy"
             });
-            $("#tgl_keluar").mask("99-99-9999", {
-                placeholder: "dd-mm-yyyy"
-            });
+            
             // Bootstrap datepicker
             $("#tgl_lahir .input-group.date").datepicker({
                 keyboardNavigation: false,

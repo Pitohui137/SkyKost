@@ -11,7 +11,7 @@
                                         <h2 class="font-strong mb-2" style="color: white;">Selamat Datang, <?= $penghuni->nama ?>! 👋</h2>
                                         <p style="color: rgba(255,255,255,0.9); font-size: 16px;">
                                             Anda menghuni Kamar <strong><?= $penghuni->no_kamar ?></strong> | 
-                                            Masa huni hingga <strong><?= $penghuni->tgl_keluar ?></strong>
+                                            Mulai huni sejak <strong><?= $penghuni->tgl_masuk ?></strong>
                                         </p>
                                     </div>
                                     <div class="col-md-4 text-right">
@@ -31,8 +31,8 @@
                                 <div class="widget-icon bg-primary mb-3">
                                     <i class="fa fa-money"></i>
                                 </div>
-                                <h3 class="font-strong mb-2">Rp<?= number_format($penghuni->biaya, 0, ',', '.') ?></h3>
-                                <p class="text-muted mb-0">Total Biaya Sewa</p>
+                                <h3 class="font-strong mb-2">Rp<?= number_format($penghuni->harga_per_bulan, 0, ',', '.') ?></h3>
+                                <p class="text-muted mb-0">Total harga_per_bulan Sewa</p>
                             </div>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
 
                 <!-- PROGRESS BAR PEMBAYARAN -->
                 <?php 
-                $persentase = $penghuni->biaya > 0 ? ($penghuni->bayar / $penghuni->biaya * 100) : 0;
+                $persentase = $penghuni->harga_per_bulan > 0 ? ($penghuni->bayar / $penghuni->harga_per_bulan * 100) : 0;
                 ?>
                 <div class="row">
                     <div class="col-lg-12">
@@ -92,7 +92,7 @@
                                     </div>
                                 </div>
                                 <small class="text-muted mt-2 d-block">
-                                    Rp<?= number_format($penghuni->bayar, 0, ',', '.') ?> dari Rp<?= number_format($penghuni->biaya, 0, ',', '.') ?>
+                                    Rp<?= number_format($penghuni->bayar, 0, ',', '.') ?> dari Rp<?= number_format($penghuni->harga_per_bulan, 0, ',', '.') ?>
                                 </small>
                             </div>
                         </div>

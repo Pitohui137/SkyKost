@@ -17,7 +17,7 @@ class C_penghuni extends CI_Controller {
     private function get_penghuni_data($id_penghuni) {
         $this->db->select('penghuni.*, 
                           COALESCE(SUM(keuangan.bayar), 0) as bayar,
-                          penghuni.biaya - COALESCE(SUM(keuangan.bayar), 0) as piutang');
+                          penghuni.harga_per_bulan - COALESCE(SUM(keuangan.bayar), 0) as piutang');
         $this->db->from('penghuni');
         $this->db->join('keuangan', 'keuangan.id_penghuni = penghuni.id', 'left');
         $this->db->where('penghuni.id', $id_penghuni);

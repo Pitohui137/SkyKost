@@ -12,7 +12,7 @@
                                     <th class="text-center">No. Kamar</th>
                                     <th class="text-center">Nama</th>
                                     <th class="text-center">Tanggal Pembayaran</th>
-                                    <th class="text-center">Jumlah Harus Dibayar</th>
+                                    <th class="text-center">Harga per Bulan</th>
                                     <th class="text-center">Nominal Pembayaran</th>
                                     <th class="text-center">Keterangan</th>
                                     <th class="text-center">Aksi</th>
@@ -25,7 +25,7 @@
                                     <td class="text-center"><?= $pembayaran->no_kamar ?></td>
                                     <td><?= $pembayaran->nama ?></td>
                                     <td class="text-center"><?= $pembayaran->tgl_bayar ?></td>
-                                    <td class="text-center"><?= 'Rp'.number_format($pembayaran->biaya, 0, ',', '.') ?></td>
+                                    <td class="text-center"><?= 'Rp'.number_format($pembayaran->harga_per_bulan, 0, ',', '.') ?></td>
                                     <td class="text-center"><?= 'Rp'.number_format($pembayaran->bayar, 0, ',', '.') ?></td>
                                     <td><?= $pembayaran->ket ?></td>
                                     <td class="text-center">

@@ -1,4 +1,4 @@
-            <!-- START PAGE CONTENT-->
+<!-- START PAGE CONTENT-->
             <div class="page-content fade-in-up">
                 <div class="ibox">
                     <div class="ibox-head">
@@ -18,7 +18,7 @@
                             <div class="form-group row">
                                 <label class="col-sm-3 col-form-label">Harga Kamar per Bulan</label>
                                 <div class="col-sm-9">
-                                    <input class="form-control" type="text" name="harga" value="<?= $kamar->harga ?>" readonly>
+                                    <input class="form-control" type="text" name="harga" value="Rp<?= number_format($kamar->harga, 0, ',', '.') ?>" readonly>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -51,18 +51,29 @@
                                     <input class="form-control" type="password" name="password" placeholder="Password" maxlength="200" required>
                                 </div>
                             </div>
-                            <div class="form-group row" id="tgl_huni">
-                                <label class="col-sm-3 col-form-label">Masa Huni</label>
-                                <div class="col-sm-9 input-daterange input-group" id="datepicker">
-                                    <input class="input-sm form-control" type="text" name="tgl_masuk" id="tgl_masuk" placeholder="Pilih Tanggal Masuk" autocomplete="off" required>
-                                    <span class="input-group-addon p-l-10 p-r-10">s.d.</span>
-                                    <input class="input-sm form-control" type="text" name="tgl_keluar" id="tgl_keluar" placeholder="Pilih Tanggal Keluar" value="<?= '31'.'-'.'07'.'-'.date('Y'); ?>">
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label">Tanggal Mulai Huni</label>
+                                <div class="col-sm-9">
+                                    <div class="input-group date" id="datepicker">
+                                        <input class="form-control" type="text" name="tgl_masuk" id="tgl_masuk" placeholder="Pilih Tanggal Masuk" autocomplete="off" required>
+                                        <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                    <small class="text-muted">Penghuni akan dikenakan harga_per_bulan per bulan sejak tanggal ini</small>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Jumlah Harus Dibayar</label>
+                                <label class="col-sm-3 col-form-label">Durasi Sewa (Bulan)</label>
                                 <div class="col-sm-9">
-                                    <input class="form-control" type="number" name="biaya" placeholder="Jumlah Harus Dibayar" value=<?= $kamar->harga*12 ?> autocomplete="off" required>
+                                    <input class="form-control" type="number" name="durasi_bulan" id="durasi_bulan" placeholder="Masukkan durasi sewa dalam bulan" min="1" max="60" value="12" required>
+                                    <small class="text-muted">Misal: 1, 3, 6, 12 bulan, dst.</small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label">Total harga_per_bulan</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" id="total_harga_per_bulan_display" value="Rp<?= number_format($kamar->harga * 12, 0, ',', '.') ?>" readonly>
+                                    <input type="hidden" name="harga_per_bulan" id="harga_per_bulan" value="<?= $kamar->harga ?>">
+                                    <small class="text-muted">Total harga_per_bulan untuk durasi sewa yang dipilih</small>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -77,3 +88,34 @@
                 </div>
             </div>
             <!-- END PAGE CONTENT-->
+
+            <script>
+                $(document).ready(function(){
+                    // Bootstrap datepicker
+                    $("#datepicker").datepicker({
+                        todayBtn: "linked",
+                        keyboardNavigation: false,
+                        forceParse: false,
+                        autoclose: true,
+                        format: "dd-mm-yyyy"
+                    });
+
+                    // Form Masks
+                    $("#tgl_masuk").mask("99-99-9999", {
+                        placeholder: "dd-mm-yyyy"
+                    });
+
+                    // Hitung total harga_per_bulan otomatis
+                    var hargaPerBulan = <?= $kamar->harga ?>;
+                    
+                    $('#durasi_bulan').on('input', function(){
+                        var durasi = parseInt($(this).val()) || 0;
+                        var total = hargaPerBulan * durasi;
+                        
+                        $('#total_harga_per_bulan_display').val('Rp' + total.toLocaleString('id-ID'));
+                    });
+
+                    // Trigger kalkulasi awal
+                    $('#durasi_bulan').trigger('input');
+                });
+            </script>

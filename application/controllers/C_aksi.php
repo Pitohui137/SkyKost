@@ -31,74 +31,71 @@ class C_aksi extends CI_Controller {
     }
 
     function aksi_tambah_penghuni(){
-        $no_kamar       = $this->input->post('no_kamar');
-        $nama           = $this->input->post('nama');
-        $no_ktp         = $this->input->post('no_ktp');
-        $alamat         = $this->input->post('alamat');
-        $no             = $this->input->post('no');
-        $password = hash('sha1', $this->input->post('password'));
-        $tgl_masuk      = $this->input->post('tgl_masuk');
-        $tgl_keluar     = $this->input->post('tgl_keluar');
-        $biaya          = $this->input->post('biaya');
+    $no_kamar       = $this->input->post('no_kamar');
+    $nama           = $this->input->post('nama');
+    $no_ktp         = $this->input->post('no_ktp');
+    $alamat         = $this->input->post('alamat');
+    $no             = $this->input->post('no');
+    $password = hash('sha1', $this->input->post('password'));
+    $tgl_masuk      = $this->input->post('tgl_masuk');
+    $harga_per_bulan = $this->input->post('harga_per_bulan');
 
-        $data = array(
-            'no_kamar'      => $no_kamar,
-            'nama'          => $nama,
-            'no_ktp'        => $no_ktp,
-            'alamat'        => $alamat,
-            'no'            => $no,
-            'password'      => $password,
-            'tgl_masuk'     => $tgl_masuk,
-            'tgl_keluar'    => $tgl_keluar,
-            'biaya'         => $biaya,
-            'status'        => 'Penghuni'
-        );
+    $data = array(
+        'no_kamar'          => $no_kamar,
+        'nama'              => $nama,
+        'no_ktp'            => $no_ktp,
+        'alamat'            => $alamat,
+        'no'                => $no,
+        'password'          => $password,
+        'tgl_masuk'         => $tgl_masuk,
+        'harga_per_bulan'   => $harga_per_bulan,
+        'status'            => 'Penghuni',
+        'bulan_terakhir_bayar' => NULL
+    );
 
-        $kamar = $this->m_data->detail_kamar(array('no_kamar' => $no_kamar))->row();
+    $kamar = $this->m_data->detail_kamar(array('no_kamar' => $no_kamar))->row();
 
-        if ($kamar->jml_penghuni == '1'){
-            $this->session->set_flashdata('pesan', 'toastr.warning("Kamar '.$no_kamar.' sudah terisi, silakan pilih kamar lain")');
-        }
-        else if ($this->m_data->insert_penghuni($data) == true){
-            $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah penghuni '.$nama.' pada kamar '.$no_kamar.'")');
-        }
-        else {
-            $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
-        }
-        redirect (base_url('daftar-kamar'));
+    if ($kamar->jml_penghuni == '1'){
+        $this->session->set_flashdata('pesan', 'toastr.warning("Kamar '.$no_kamar.' sudah terisi, silakan pilih kamar lain")');
     }
-
-    function aksi_edit_penghuni(){
-        $id_penghuni    = $this->input->post('id_penghuni');
-        $no_kamar       = $this->input->post('no_kamar');
-        $nama           = $this->input->post('nama');
-        $no_ktp         = $this->input->post('no_ktp');
-        $alamat         = $this->input->post('alamat');
-        $no             = $this->input->post('no');
-        $tgl_masuk      = $this->input->post('tgl_masuk');
-        $tgl_keluar     = $this->input->post('tgl_keluar');
-        $biaya          = $this->input->post('biaya');
-
-        $data = array(
-            'no_kamar'      => $no_kamar,
-            'nama'          => $nama,
-            'no_ktp'        => $no_ktp,
-            'alamat'        => $alamat,
-            'no'            => $no,
-            'tgl_masuk'     => $tgl_masuk,
-            'tgl_keluar'    => $tgl_keluar,
-            'biaya'         => $biaya,
-            'status'        => 'Penghuni'
-        );
-
-        if ($this->m_data->update_penghuni($id_penghuni, $data) == true){
-            $this->session->set_flashdata('pesan', 'toastr.success("Berhasil memperbarui data penghuni '.$nama.' pada kamar '.$no_kamar.'")');
-        }
-        else {
-            $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
-        }
-        redirect (base_url('daftar-penghuni'));
+    else if ($this->m_data->insert_penghuni($data) == true){
+        $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah penghuni '.$nama.' pada kamar '.$no_kamar.'")');
     }
+    else {
+        $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
+    }
+    redirect (base_url('daftar-kamar'));
+}
+
+function aksi_edit_penghuni(){
+    $id_penghuni    = $this->input->post('id_penghuni');
+    $no_kamar       = $this->input->post('no_kamar');
+    $nama           = $this->input->post('nama');
+    $no_ktp         = $this->input->post('no_ktp');
+    $alamat         = $this->input->post('alamat');
+    $no             = $this->input->post('no');
+    $tgl_masuk      = $this->input->post('tgl_masuk');
+    $harga_per_bulan = $this->input->post('harga_per_bulan'); 
+
+    $data = array(
+        'no_kamar'          => $no_kamar,
+        'nama'              => $nama,
+        'no_ktp'            => $no_ktp,
+        'alamat'            => $alamat,
+        'no'                => $no,
+        'tgl_masuk'         => $tgl_masuk,
+        'harga_per_bulan'   => $harga_per_bulan, 
+        'status'            => 'Penghuni'
+    );
+
+    if ($this->m_data->update_penghuni($id_penghuni, $data) == true){
+        $this->session->set_flashdata('pesan', 'toastr.success("Berhasil memperbarui data penghuni '.$nama.' pada kamar '.$no_kamar.'")');
+    }
+    else {
+        $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
+    }
+    redirect (base_url('daftar-penghuni'));
+}
 
     function aksi_hapus_penghuni($id = null){
 

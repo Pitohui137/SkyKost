@@ -23,13 +23,6 @@ class M_data extends CI_Model {
         return $this->db->get('detail_kamar');
     }
 
-    // tidak terpakai
-    // function data_user($where){
-    //     $this->db->select('nama, username');
-    //     $this->db->where($where);
-    //     return $this->db->get('admin');
-    // }
-
     function insert_penghuni($data){
         $this->db->insert('penghuni', $data);
         return ($this->db->affected_rows() > 0) ? true : false;
@@ -39,12 +32,6 @@ class M_data extends CI_Model {
         $this->db->insert('keuangan', $data);
         return ($this->db->affected_rows() > 0) ? true : false;
     }
-
-    // tidak terpakai
-    // function insert_user($user_baru){
-    //     $this->db->insert('admin', $user_baru);
-    //     return ($this->db->affected_rows() > 0) ? true : false;
-    // }
 
     function update_harga($no_kamar, $harga){
         $this->db->where('no_kamar', $no_kamar);

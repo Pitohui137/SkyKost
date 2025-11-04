@@ -34,6 +34,12 @@
                                         <input class="form-control" type="number" name="bayar" placeholder="Masukkan Jumlah Pembayaran" max="1000000000" autocomplete="off" required>
                                     </div>
                                 </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">Harga per Bulan</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control" type="text" value="Rp<?= number_format($penghuni->harga_per_bulan, 0, ',', '.') ?>" readonly>
+                                    </div>
+                                </div>
                                 <div class="form-group row transaksi" id="tgl_bayar">
                                     <label class="col-sm-3 col-form-label">Tanggal Transaksi</label>
                                     <div class="col-sm-9 input-group date">

@@ -12,7 +12,7 @@
                                     <th class="text-center">No. Kamar</th>
                                     <th class="text-center">Nama</th>
                                     <th class="text-center">No. HP</th>
-                                    <th class="text-center">Masa Huni</th>
+                                    <th class="text-center">Mulai Huni</th>
                                     <th class="text-center">Piutang</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
@@ -24,8 +24,8 @@
                                     <td class="text-center"><?= $penghuni->no_kamar ?></td>
                                     <td><?= $penghuni->nama ?></td>
                                     <td class="text-center"><?= $penghuni->no ?></td>
-                                    <td class="text-center"><?= date('M Y', strtotime($penghuni->tgl_masuk)).' - '.date('M Y', strtotime($penghuni->tgl_keluar)) ?></td>
-                                    <td class="text-center"><?= $penghuni->piutang == 0 ? '<span class="badge badge-success">Sudah Lunas</span>' : 'Rp'.number_format($penghuni->piutang, 0, ',', '.') ?>
+                                    <td class="text-center"><?= date('M Y', strtotime($penghuni->tgl_masuk)) ?></td>
+                                    <td class="text-center"><?= $penghuni->piutang == 0 ? '<span class="badge badge-success">Sudah Lunas</span>' : 'Rp'.number_format($penghuni->piutang, 0, ',', '.') ?></td>
                                     <td class="text-center">
                                         <a class="btn btn-sm btn-warning active detail-penghuni" id="<?= $penghuni->id ?>" data-toggle="tooltip" data-placement="top" title="" data-original-title="Detail">
                                             <span class="fa fa-info-circle"></span>

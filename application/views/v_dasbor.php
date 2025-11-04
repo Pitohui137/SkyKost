@@ -37,7 +37,7 @@
             </div>
             <div class="page-content fade-in-up">
                 
-                <!-- STATISTIK CARDS -->
+             <!-- STATISTIK CARDS -->
                 <div class="row">
                     <div class="col-lg-3 col-md-6">
                         <div class="ibox bg-success color-white widget-stat">
@@ -85,7 +85,7 @@
                     </div>
                 </div>
 
-                <!-- STATISTIK KAMAR -->
+                <!-- STATISTIK KAMAR & INFO -->
                 <div class="row">
                     <div class="col-lg-8">
                         <div class="ibox">
@@ -104,6 +104,7 @@
                     </div>
 
                     <div class="col-lg-4">
+                        <!-- STATUS KAMAR -->
                         <div class="ibox">
                             <div class="ibox-head">
                                 <div class="ibox-title">Status Kamar</div>
@@ -117,14 +118,22 @@
                                         <span><i class="fa fa-circle text-success"></i> Terisi</span>
                                         <strong><?= $kamar_terisi ?> Kamar</strong>
                                     </div>
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex justify-content-between mb-3">
                                         <span><i class="fa fa-circle text-secondary"></i> Kosong</span>
                                         <strong><?= $total_kamar - $kamar_terisi ?> Kamar</strong>
                                     </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-success" 
+                                             role="progressbar" 
+                                             style="width: <?= $total_kamar > 0 ? ($kamar_terisi / $total_kamar * 100) : 0 ?>%">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Tingkat Hunian: <?= $total_kamar > 0 ? number_format($kamar_terisi / $total_kamar * 100, 1) : 0 ?>%</small>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- INFO PENGHUNI -->
                         <div class="ibox">
                             <div class="ibox-head">
                                 <div class="ibox-title">Info Penghuni</div>
@@ -178,7 +187,13 @@
                                             </tr>
                                         </thead>
                                         <tbody id="bodyTabelPendapatan">
-                                            <!-- Data akan diisi via AJAX -->
+                                            <tr>
+                                                <td colspan="5" class="text-center">
+                                                    <div class="spinner-border text-primary" role="status">
+                                                        <span class="sr-only">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                         <tfoot>
                                             <tr class="font-strong">
@@ -202,12 +217,20 @@
                         <div class="ibox">
                             <div class="ibox-head">
                                 <div class="ibox-title">Pembayaran Terbaru</div>
+                                <div class="ibox-tools">
+                                    <a href="<?= base_url('riwayat-pembayaran') ?>" class="btn btn-sm btn-primary">
+                                        Lihat Semua
+                                    </a>
+                                </div>
                             </div>
                             <div class="ibox-body">
                                 <?php if (empty($pembayaran_terbaru)): ?>
-                                    <p class="text-center">Belum ada pembayaran</p>
+                                    <div class="text-center py-5">
+                                        <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Belum ada pembayaran</p>
+                                    </div>
                                 <?php else: ?>
-                                    <table class="table table-striped">
+                                    <table class="table table-striped table-hover">
                                         <thead>
                                             <tr>
                                                 <th>No. Kamar</th>
@@ -220,19 +243,55 @@
                                         <tbody>
                                             <?php foreach ($pembayaran_terbaru as $bayar): ?>
                                             <tr>
-                                                <td><?= $bayar->no_kamar ?></td>
+                                                <td><strong><?= $bayar->no_kamar ?></strong></td>
                                                 <td><?= $bayar->nama ?></td>
-                                                <td><?= $bayar->tgl_bayar ?></td>
-                                                <td class="text-right">Rp<?= number_format($bayar->bayar, 0, ',', '.') ?></td>
+                                                <td><i class="fa fa-calendar-o"></i> <?= $bayar->tgl_bayar ?></td>
+                                                <td class="text-right">
+                                                    <strong class="text-success">Rp<?= number_format($bayar->bayar, 0, ',', '.') ?></strong>
+                                                </td>
                                                 <td><?= $bayar->ket ?: '-' ?></td>
                                             </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
-                                    <div class="text-center">
-                                        <a href="<?= base_url('riwayat-pembayaran') ?>" class="btn btn-primary">Lihat Semua Riwayat</a>
-                                    </div>
                                 <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFO SISTEM -->
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="ibox">
+                            <div class="ibox-body text-center" style="padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
+                                <i class="fa fa-calendar-check-o fa-3x mb-3" style="opacity: 0.9;"></i>
+                                <h5 class="font-strong" style="color: white;">Sistem Pembayaran Bulanan</h5>
+                                <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 14px;">
+                                    Pembayaran dihitung per bulan. Penghuni ditagih sesuai harga kamar bulanan.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="ibox">
+                            <div class="ibox-body text-center" style="padding: 25px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 10px;">
+                                <i class="fa fa-refresh fa-3x mb-3" style="opacity: 0.9;"></i>
+                                <h5 class="font-strong" style="color: white;">Auto Update Tagihan</h5>
+                                <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 14px;">
+                                    Piutang otomatis terupdate sesuai durasi huni dan pembayaran yang masuk.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="ibox">
+                            <div class="ibox-body text-center" style="padding: 25px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 10px;">
+                                <i class="fa fa-mobile fa-3x mb-3" style="opacity: 0.9;"></i>
+                                <h5 class="font-strong" style="color: white;">Pembayaran Online</h5>
+                                <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 14px;">
+                                    Penghuni dapat upload bukti pembayaran via QRIS, GoPay, DANA, dan Transfer Bank.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -284,7 +343,10 @@
                                 beginAtZero: true,
                                 ticks: {
                                     callback: function(value) {
-                                        return 'Rp' + (value / 1000000).toFixed(1) + 'jt';
+                                        if (value >= 1000000) {
+                                            return 'Rp' + (value / 1000000).toFixed(1) + 'jt';
+                                        }
+                                        return 'Rp' + (value / 1000).toFixed(0) + 'rb';
                                     }
                                 }
                             }
@@ -326,6 +388,9 @@
                 });
 
                 function loadDataPendapatan(tahun) {
+                    // Show loading
+                    $('#bodyTabelPendapatan').html('<tr><td colspan="5" class="text-center"><div class="spinner-border text-primary" role="status"></div></td></tr>');
+                    
                     $.ajax({
                         url: '<?= base_url("get-pendapatan-tahunan") ?>',
                         method: 'POST',
@@ -356,12 +421,14 @@
                                     } else {
                                         trend = '<span class="text-muted">-</span>';
                                     }
+                                } else {
+                                    trend = '<span class="text-muted">-</span>';
                                 }
 
                                 html += '<tr>' +
-                                    '<td>' + item.bulan + '</td>' +
-                                    '<td class="text-right">Rp' + parseInt(item.total).toLocaleString('id-ID') + '</td>' +
-                                    '<td class="text-center">' + item.jumlah_transaksi + '</td>' +
+                                    '<td><strong>' + item.bulan + '</strong></td>' +
+                                    '<td class="text-right"><strong class="text-primary">Rp' + parseInt(item.total).toLocaleString('id-ID') + '</strong></td>' +
+                                    '<td class="text-center"><span class="badge badge-info">' + item.jumlah_transaksi + '</span></td>' +
                                     '<td class="text-center">Rp' + parseInt(rataRata).toLocaleString('id-ID') + '</td>' +
                                     '<td class="text-center">' + trend + '</td>' +
                                     '</tr>';
@@ -369,14 +436,56 @@
                                 prevTotal = item.total;
                             });
 
+                            if (html === '') {
+                                html = '<tr><td colspan="5" class="text-center text-muted">Tidak ada data untuk tahun ini</td></tr>';
+                            }
+
                             $('#bodyTabelPendapatan').html(html);
-                            $('#totalPendapatan').html('Rp' + totalPendapatan.toLocaleString('id-ID'));
-                            $('#totalTransaksi').html(totalTransaksi);
+                            $('#totalPendapatan').html('<strong class="text-success">Rp' + totalPendapatan.toLocaleString('id-ID') + '</strong>');
+                            $('#totalTransaksi').html('<span class="badge badge-primary">' + totalTransaksi + '</span>');
                             
                             var avgTotal = totalTransaksi > 0 ? (totalPendapatan / totalTransaksi) : 0;
                             $('#rataRata').html('Rp' + parseInt(avgTotal).toLocaleString('id-ID'));
+                        },
+                        error: function() {
+                            $('#bodyTabelPendapatan').html('<tr><td colspan="5" class="text-center text-danger">Gagal memuat data</td></tr>');
                         }
                     });
                 }
             </script>
+
+            <style>
+                /* Dashboard Animations */
+                .widget-stat {
+                    animation: fadeInUp 0.5s ease;
+                }
+
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                /* Table hover effect */
+                #tabelPendapatan tbody tr {
+                    transition: all 0.3s ease;
+                }
+
+                #tabelPendapatan tbody tr:hover {
+                    background-color: #f0f8ff !important;
+                    transform: scale(1.01);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                }
+
+                /* Spinner */
+                .spinner-border {
+                    width: 2rem;
+                    height: 2rem;
+                }
+            </style>
             <!-- END PAGE CONTENT-->

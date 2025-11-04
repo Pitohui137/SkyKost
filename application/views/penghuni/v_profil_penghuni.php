@@ -133,13 +133,6 @@
                                         </td>
                                         <td><?= $penghuni->tgl_masuk ?></td>
                                     </tr>
-                                    <tr>
-                                        <td>
-                                            <i class="fa fa-calendar-times-o text-success"></i> 
-                                            <strong>Tanggal Keluar</strong>
-                                        </td>
-                                        <td><?= $penghuni->tgl_keluar ?></td>
-                                    </tr>
                                 </table>
                             </div>
                         </div>
@@ -158,8 +151,8 @@
                                             <div class="info-icon bg-primary">
                                                 <i class="fa fa-calculator"></i>
                                             </div>
-                                            <h4 class="mt-3 mb-1">Rp<?= number_format($penghuni->biaya, 0, ',', '.') ?></h4>
-                                            <p class="text-muted mb-0">Total Biaya</p>
+                                            <h4 class="mt-3 mb-1">Rp<?= number_format($penghuni->harga_per_bulan, 0, ',', '.') ?></h4>
+                                            <p class="text-muted mb-0">Total harga_per_bulan</p>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -190,7 +183,7 @@
 
                                 <!-- Progress Bar -->
                                 <?php 
-                                $persentase = $penghuni->biaya > 0 ? ($penghuni->bayar / $penghuni->biaya * 100) : 0;
+                                $persentase = $penghuni->harga_per_bulan > 0 ? ($penghuni->bayar / $penghuni->harga_per_bulan * 100) : 0;
                                 ?>
                                 <div class="mt-4">
                                     <div class="d-flex justify-content-between mb-2">
