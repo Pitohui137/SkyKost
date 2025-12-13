@@ -35,9 +35,9 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Harga per Bulan</label>
+                                    <label class="col-sm-3 col-form-label">Tagihan</label>
                                     <div class="col-sm-9">
-                                        <input class="form-control" type="text" value="Rp<?= number_format($penghuni->harga_per_bulan, 0, ',', '.') ?>" readonly>
+                                        <input class="form-control" type="text" value="Rp<?= number_format($penghuni->tagihan, 0, ',', '.') ?>" readonly>
                                     </div>
                                 </div>
                                 <div class="form-group row transaksi" id="tgl_bayar">

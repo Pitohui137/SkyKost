@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 13, 2025 at 07:26 PM
+-- Generation Time: Dec 13, 2025 at 09:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -77,10 +77,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_update_tagihan_bulanan` ()   BEG
         -- +1 untuk bulan berjalan
         SET v_tagihan_baru = v_harga_kamar * (v_bulan_berlalu + 1);
         
-        -- Update tagihan penghuni
+        -- Update tagihan penghuni (TANPA bulan_terakhir_bayar)
         UPDATE penghuni 
-        SET harga_per_bulan = v_tagihan_baru,
-            bulan_terakhir_bayar = DATE_FORMAT(NOW(), '%Y-%m')
+        SET harga_per_bulan = v_tagihan_baru
         WHERE id = v_id;
         
         SET v_updated = v_updated + 1;
@@ -207,7 +206,6 @@ CREATE TABLE `detail_penghuni` (
 ,`status` varchar(20)
 ,`harga_per_bulan` int(30)
 ,`foto` varchar(255)
-,`bulan_terakhir_bayar` varchar(7)
 ,`bayar` decimal(41,0)
 ,`piutang` decimal(42,0)
 );
@@ -262,28 +260,6 @@ INSERT INTO `keuangan` (`id_pembayaran`, `id_penghuni`, `tgl_bayar`, `bayar`, `k
 (9, 64, '12-11-2025', 700000, 'Pembayaran via GoPay - November'),
 (12, 64, '13-12-2025', 700000, 'Pembayaran via GoPay - Desember 2025'),
 (13, 76, '13-12-2025', 900000, 'Pembayaran via Transfer BCA - Segini dulu ya Bu ');
-
---
--- Triggers `keuangan`
---
-DELIMITER $$
-CREATE TRIGGER `trg_after_insert_keuangan` AFTER INSERT ON `keuangan` FOR EACH ROW BEGIN
-    -- Update bulan terakhir bayar penghuni
-    UPDATE penghuni
-    SET bulan_terakhir_bayar = DATE_FORMAT(NOW(), '%Y-%m')
-    WHERE id = NEW.id_penghuni;
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `trg_after_update_keuangan` AFTER UPDATE ON `keuangan` FOR EACH ROW BEGIN
-    -- Update bulan terakhir bayar penghuni
-    UPDATE penghuni
-    SET bulan_terakhir_bayar = DATE_FORMAT(NOW(), '%Y-%m')
-    WHERE id = NEW.id_penghuni;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -350,22 +326,20 @@ CREATE TABLE `penghuni` (
   `no` varchar(30) NOT NULL,
   `tgl_masuk` varchar(10) NOT NULL,
   `harga_per_bulan` int(30) DEFAULT NULL,
-  `bulan_terakhir_bayar` varchar(7) DEFAULT NULL COMMENT 'Format: YYYY-MM',
   `status` varchar(20) DEFAULT NULL,
   `password` varchar(300) DEFAULT NULL,
-  `foto` varchar(255) DEFAULT NULL,
-  `bulan_terakhir_update` varchar(7) DEFAULT NULL COMMENT 'Format: YYYY-MM'
+  `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `penghuni`
 --
 
-INSERT INTO `penghuni` (`id`, `no_kamar`, `no_ktp`, `nama`, `alamat`, `no`, `tgl_masuk`, `harga_per_bulan`, `bulan_terakhir_bayar`, `status`, `password`, `foto`, `bulan_terakhir_update`) VALUES
-(64, '101', '43455', 'Aby', 'Serang', '082114952019', '03-11-2025', 1400000, '2025-12', 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', '427940df744ed08316e0f16f58f7367f.jpg', NULL),
-(76, '102', '8273764', 'Tama', 'Senen', '0872175212', '08-08-2025', 2000000, '2025-12', 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png', NULL),
-(77, '104', '4321433', 'Frando', 'Jagakarsa', '09287238271', '09-09-2025', 2400000, NULL, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png', NULL),
-(78, '204', '928397221', 'Yono', 'Pesing', '082653621121', '09-11-2025', 800000, NULL, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png', NULL);
+INSERT INTO `penghuni` (`id`, `no_kamar`, `no_ktp`, `nama`, `alamat`, `no`, `tgl_masuk`, `harga_per_bulan`, `status`, `password`, `foto`) VALUES
+(64, '101', '43455', 'Aby', 'Serang', '082114952019', '03-11-2025', 1400000, 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', '427940df744ed08316e0f16f58f7367f.jpg'),
+(76, '102', '8273764', 'Tama', 'Senen', '0872175212', '08-08-2025', 2000000, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png'),
+(77, '104', '4321433', 'Frando', 'Jagakarsa', '09287238271', '09-09-2025', 2400000, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png'),
+(78, '204', '928397221', 'Yono', 'Pesing', '082653621121', '09-11-2025', 800000, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png');
 
 -- --------------------------------------------------------
 
@@ -436,7 +410,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `detail_penghuni`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detail_penghuni`  AS SELECT `penghuni`.`id` AS `id`, `penghuni`.`no_kamar` AS `no_kamar`, `penghuni`.`nama` AS `nama`, `penghuni`.`no_ktp` AS `no_ktp`, `penghuni`.`alamat` AS `alamat`, `penghuni`.`no` AS `no`, `penghuni`.`tgl_masuk` AS `tgl_masuk`, `penghuni`.`status` AS `status`, `penghuni`.`harga_per_bulan` AS `harga_per_bulan`, `penghuni`.`foto` AS `foto`, `penghuni`.`bulan_terakhir_bayar` AS `bulan_terakhir_bayar`, coalesce(sum(`keuangan`.`bayar`),0) AS `bayar`, `penghuni`.`harga_per_bulan`- coalesce(sum(`keuangan`.`bayar`),0) AS `piutang` FROM (`penghuni` left join `keuangan` on(`penghuni`.`id` = `keuangan`.`id_penghuni`)) GROUP BY `penghuni`.`id` ORDER BY `penghuni`.`no_kamar` ASC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detail_penghuni`  AS SELECT `penghuni`.`id` AS `id`, `penghuni`.`no_kamar` AS `no_kamar`, `penghuni`.`nama` AS `nama`, `penghuni`.`no_ktp` AS `no_ktp`, `penghuni`.`alamat` AS `alamat`, `penghuni`.`no` AS `no`, `penghuni`.`tgl_masuk` AS `tgl_masuk`, `penghuni`.`status` AS `status`, `penghuni`.`harga_per_bulan` AS `harga_per_bulan`, `penghuni`.`foto` AS `foto`, coalesce(sum(`keuangan`.`bayar`),0) AS `bayar`, `penghuni`.`harga_per_bulan`- coalesce(sum(`keuangan`.`bayar`),0) AS `piutang` FROM (`penghuni` left join `keuangan` on(`penghuni`.`id` = `keuangan`.`id_penghuni`)) GROUP BY `penghuni`.`id` ORDER BY `penghuni`.`no_kamar` ASC ;
 
 -- --------------------------------------------------------
 
@@ -508,8 +482,7 @@ ALTER TABLE `penghuni`
   ADD KEY `idx_nama` (`nama`),
   ADD KEY `idx_status` (`status`),
   ADD KEY `idx_no_kamar_status` (`no_kamar`,`status`),
-  ADD KEY `idx_tgl_masuk` (`tgl_masuk`),
-  ADD KEY `idx_bulan_terakhir` (`bulan_terakhir_bayar`);
+  ADD KEY `idx_tgl_masuk` (`tgl_masuk`);
 
 --
 -- Indexes for table `penghuni_session`

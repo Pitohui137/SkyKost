@@ -49,10 +49,10 @@ class C_tagihan extends CI_Controller {
                     $harga_kamar = $this->db->get_where('kamar', ['no_kamar' => $penghuni->no_kamar])->row();
                     $tagihan_seharusnya = $harga_kamar->harga * ($bulan_berlalu + 1); // +1 untuk bulan berjalan
                     
-                    // Update harga_per_bulan penghuni
+                    // Update tagihan penghuni
                     $this->db->where('id', $penghuni->id);
                     $this->db->update('penghuni', [
-                        'harga_per_bulan' => $tagihan_seharusnya
+                        'tagihan' => $tagihan_seharusnya
                     ]);
                     
                     $updated++;

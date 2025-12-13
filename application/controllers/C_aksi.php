@@ -64,7 +64,7 @@ class C_aksi extends CI_Controller {
 
         // Validasi input required
         if (empty($nama) || empty($no_kamar) || empty($tgl_masuk)) {
-            $this->session->set_flashdata('pesan', 'toastr.error("Data tidak lengkap. Silakan isi semua field yang wajib.")');
+            $this->session->set_flashdata('pesan', 'toastr.error("Data tidak lengkap. Silakan isi semua field yang wajib diisi.")');
             redirect(base_url('tambah-penghuni/'.$no_kamar));
             return;
         }
@@ -96,10 +96,10 @@ class C_aksi extends CI_Controller {
         }
 
         // ============================================
-        // SET HARGA PER BULAN (dari harga kamar)
+        // SET TAGIHAN AWAL (dari harga kamar)
         // ============================================
-        // Harga per bulan = harga kamar (akan auto update setiap bulan via cron)
-        $harga_per_bulan = $kamar->harga;
+        // Tagihan awal = harga kamar × 1 bulan (akan auto update setiap bulan via cron)
+        $tagihan = $kamar->harga;
 
         // Hash password
         $password_hash = hash('sha1', $password);
@@ -124,17 +124,16 @@ class C_aksi extends CI_Controller {
         // PREPARE DATA
         // ============================================
         $data = array(
-            'no_kamar'          => $no_kamar,
-            'nama'              => $nama,
-            'no_ktp'            => $no_ktp,
-            'alamat'            => $alamat,
-            'no'                => $no,
-            'password'          => $password_hash,
-            'tgl_masuk'         => $tgl_masuk,
-            'harga_per_bulan'   => $harga_per_bulan,
-            'status'            => 'Penghuni',
-            'foto'              => 'default-avatar.png',
-            'bulan_terakhir_bayar' => NULL
+            'no_kamar'      => $no_kamar,
+            'nama'          => $nama,
+            'no_ktp'        => $no_ktp,
+            'alamat'        => $alamat,
+            'no'            => $no,
+            'password'      => $password_hash,
+            'tgl_masuk'     => $tgl_masuk,
+            'tagihan'       => $tagihan,
+            'status'        => 'Penghuni',
+            'foto'          => 'default-avatar.png'
         );
 
         // ============================================
@@ -162,10 +161,7 @@ class C_aksi extends CI_Controller {
             }
             
             // SUCCESS
-            $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah penghuni <strong>'.$nama.'</strong> pada kamar <strong>'.$no_kamar.'</strong> dengan harga <strong>Rp'.number_format($harga_per_bulan, 0, ',', '.').' per bulan</strong>")');
-            
-            // Log activity (optional)
-            $this->log_activity('INSERT', 'penghuni', $insert_id, 'Tambah penghuni: '.$nama.' di kamar '.$no_kamar);
+            $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah penghuni <strong>'.$nama.'</strong> pada kamar <strong>'.$no_kamar.'</strong> dengan tagihan awal <strong>Rp'.number_format($tagihan, 0, ',', '.').'</strong>")');
             
         } catch (Exception $e) {
             // ROLLBACK jika error
@@ -196,9 +192,6 @@ class C_aksi extends CI_Controller {
 
                 if ($penghuni->status == 'Penghuni'){
                     $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menghapus penghuni <strong>'.$penghuni->nama.'</strong> dari kamar <strong>'.$no_kamar.'</strong>")');
-                    
-                    // Log activity
-                    $this->log_activity('DELETE', 'penghuni', $id, 'Hapus penghuni: '.$penghuni->nama.' dari kamar '.$no_kamar);
                 }
                 else {
                     $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
@@ -234,9 +227,6 @@ class C_aksi extends CI_Controller {
 
         if ($this->m_data->insert_pembayaran($data) == true){
             $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah data pembayaran penghuni <strong>'.$nama.'</strong> pada kamar <strong>'.$no_kamar.'</strong>")');
-            
-            // Log activity
-            $this->log_activity('INSERT', 'keuangan', $this->db->insert_id(), 'Tambah pembayaran: '.$nama.' Rp'.number_format($bayar, 0, ',', '.'));
         }
         else {
             $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
@@ -260,9 +250,6 @@ class C_aksi extends CI_Controller {
 
         if ($this->m_data->update_pembayaran($id_pembayaran, $data) == true){
             $this->session->set_flashdata('pesan', 'toastr.success("Berhasil memperbarui pembayaran tanggal <strong>'.$tgl_bayar.'</strong> dari penghuni <strong>'.$nama.'</strong>")');
-            
-            // Log activity
-            $this->log_activity('UPDATE', 'keuangan', $id_pembayaran, 'Edit pembayaran: '.$nama.' tanggal '.$tgl_bayar);
         }
         else {
             $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
@@ -282,9 +269,6 @@ class C_aksi extends CI_Controller {
         else {
             if ($this->m_data->delete_pembayaran($id_pembayaran) == true){
                 $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menghapus pembayaran tanggal <strong>'.$pembayaran->tgl_bayar.'</strong> dari penghuni <strong>'.$pembayaran->nama.'</strong>")');
-                
-                // Log activity
-                $this->log_activity('DELETE', 'keuangan', $id_pembayaran, 'Hapus pembayaran: '.$pembayaran->nama.' tanggal '.$pembayaran->tgl_bayar);
             }
             else {
                 $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');

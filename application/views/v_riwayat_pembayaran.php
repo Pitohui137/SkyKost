@@ -25,16 +25,19 @@
                                     <td class="text-center"><?= $pembayaran->no_kamar ?></td>
                                     <td><?= $pembayaran->nama ?></td>
                                     <td class="text-center"><?= $pembayaran->tgl_bayar ?></td>
-                                    <td class="text-center"><?= 'Rp'.number_format($pembayaran->harga_per_bulan, 0, ',', '.') ?></td>
+                                    <td class="text-center"><?= 'Rp'.number_format($pembayaran->tagihan, 0, ',', '.') ?></td>
                                     <td class="text-center"><?= 'Rp'.number_format($pembayaran->bayar, 0, ',', '.') ?></td>
                                     <td><?= $pembayaran->ket ?></td>
                                     <td class="text-center">
-                                        <a class="btn btn-sm btn-info active edit-riwayat" href="<?= base_url('edit-pembayaran/'.$pembayaran->id_pembayaran) ?>" data-toggle="tooltip" data-placement="top" title="" data-original-title="Ubah Riwayat">
-                                            <span class="fa fa-pencil"></span>
-                                        </a>
-                                        <a class="btn btn-sm btn-danger active hapus-pembayaran" id="<?= $pembayaran->id_pembayaran ?>"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Hapus Riwayat">
-                                            <span class="fa fa-trash"></span>
-                                        </a>
+                                <div class="d-flex justify-content-start">
+                                    <a class="btn btn-sm btn-info active edit-riwayat" href="<?= base_url('edit-pembayaran/'.$pembayaran->id_pembayaran) ?>" data-toggle="tooltip" data-placement="top" title="" data-original-title="Ubah Riwayat">
+                                        <span class="fa fa-pencil"></span>
+                                    </a>
+                                    
+                                    <a class="btn btn-sm btn-danger active hapus-pembayaran ms-1" id="<?= $pembayaran->id_pembayaran ?>" data-toggle="tooltip" data-placement="top" title="" data-original-title="Hapus Riwayat">
+                                        <span class="fa fa-trash"></span>
+                                    </a>
+                                </div>
                                     </td>
                                 </tr>
                                 <?php } ?>

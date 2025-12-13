@@ -157,7 +157,7 @@ $(document).ready(function(){
                                 </tr>
                                 <tr>
                                     <td width="30%"><label>Harga per Bulan</label></td>
-                                    <td width="70%">Rp`+ parseInt(data.harga_per_bulan).toLocaleString('id-ID') +`</td>
+                                    <td width="70%">Rp`+ parseInt(data.tagihan).toLocaleString('id-ID') +`</td>
                                 </tr>
                                 <tr>
                                     <td width="30%"><label>Jumlah Telah Dibayar</label></td>
@@ -346,7 +346,7 @@ $(document).ready(function(){
                                         </tr>
                                         <tr>
                                             <td width="30%"><label>Jumlah Harus Dibayar</label></td>
-                                            <td width="70%"> Rp`+ data.harga_per_bulan +`</td>
+                                            <td width="70%"> Rp`+ data.tagihan +`</td>
                                         </tr>
                                         <tr>
                                             <td width="30%"><label>Jumlah Telah Dibayar</label></td>

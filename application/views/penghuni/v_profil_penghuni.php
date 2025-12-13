@@ -151,8 +151,8 @@
                                             <div class="info-icon bg-primary">
                                                 <i class="fa fa-calculator"></i>
                                             </div>
-                                            <h4 class="mt-3 mb-1">Rp<?= number_format($penghuni->harga_per_bulan, 0, ',', '.') ?></h4>
-                                            <p class="text-muted mb-0">Total harga_per_bulan</p>
+                                            <h4 class="mt-3 mb-1">Rp<?= number_format($penghuni->tagihan, 0, ',', '.') ?></h4>
+                                            <p class="text-muted mb-0">Total tagihan</p>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -183,7 +183,7 @@
 
                                 <!-- Progress Bar -->
                                 <?php 
-                                $persentase = $penghuni->harga_per_bulan > 0 ? ($penghuni->bayar / $penghuni->harga_per_bulan * 100) : 0;
+                                $persentase = $penghuni->tagihan > 0 ? ($penghuni->bayar / $penghuni->tagihan * 100) : 0;
                                 ?>
                                 <div class="mt-4">
                                     <div class="d-flex justify-content-between mb-2">

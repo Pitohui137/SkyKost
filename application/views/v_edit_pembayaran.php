@@ -44,7 +44,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Harga per Bulan</label>
                                     <div class="col-sm-9">
-                                        <input class="form-control" type="text" value="Rp<?= number_format($pembayaran->harga_per_bulan, 0, ',', '.') ?>" disabled>
+                                        <input class="form-control" type="text" value="Rp<?= number_format($pembayaran->tagihan, 0, ',', '.') ?>" disabled>
                                     </div>
                                 </div>
                                 <div class="form-group row">
