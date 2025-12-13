@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 13, 2025 at 11:40 AM
+-- Generation Time: Dec 13, 2025 at 07:26 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -154,8 +154,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`nama`, `username`, `password`) VALUES
-('Administrator', 'admin', 'd033e22ae348aeb5660fc2140aec35850c4da997'),
-('Doni Tampan', 'doncu', '5cec175b165e3d5e62c9e13ce848ef6feac81bff');
+('Administrator', 'admin', 'd033e22ae348aeb5660fc2140aec35850c4da997');
 
 -- --------------------------------------------------------
 
@@ -230,9 +229,9 @@ CREATE TABLE `kamar` (
 --
 
 INSERT INTO `kamar` (`lantai`, `no_kamar`, `harga`) VALUES
-('1', '101', 700000),
+('1', '101', 800000),
 ('1', '102', 400000),
-('1', '103', 500000),
+('1', '103', 900000),
 ('1', '104', 600000),
 ('1', '105', 600000),
 ('2', '201', 500000),
@@ -261,7 +260,8 @@ CREATE TABLE `keuangan` (
 
 INSERT INTO `keuangan` (`id_pembayaran`, `id_penghuni`, `tgl_bayar`, `bayar`, `ket`) VALUES
 (9, 64, '12-11-2025', 700000, 'Pembayaran via GoPay - November'),
-(12, 64, '13-12-2025', 700000, 'Pembayaran via GoPay - Desember 2025');
+(12, 64, '13-12-2025', 700000, 'Pembayaran via GoPay - Desember 2025'),
+(13, 76, '13-12-2025', 900000, 'Pembayaran via Transfer BCA - Segini dulu ya Bu ');
 
 --
 -- Triggers `keuangan`
@@ -332,7 +332,8 @@ CREATE TABLE `pengajuan_pembayaran` (
 
 INSERT INTO `pengajuan_pembayaran` (`id_pengajuan`, `id_penghuni`, `nominal`, `metode_pembayaran`, `bukti_transfer`, `tgl_pengajuan`, `status`, `tgl_konfirmasi`, `keterangan`) VALUES
 (5, 64, 700000, 'GoPay', '94ea6ff57d95f258b760ffe38b0bdccd.png', '2025-11-12 10:03:31', 'approved', '2025-11-12 10:04:28', 'November'),
-(6, 64, 700000, 'GoPay', '948a88ac5571d72c4bc475c191a23de4.png', '2025-12-13 17:37:14', 'approved', '2025-12-13 17:38:22', 'Desember 2025');
+(6, 64, 700000, 'GoPay', '948a88ac5571d72c4bc475c191a23de4.png', '2025-12-13 17:37:14', 'approved', '2025-12-13 17:38:22', 'Desember 2025'),
+(7, 76, 900000, 'Transfer BCA', '3c41fcd0f04e28d2a121057f19bacb85.png', '2025-12-13 23:28:58', 'approved', '2025-12-13 23:30:02', 'Segini dulu ya Bu ');
 
 -- --------------------------------------------------------
 
@@ -361,13 +362,10 @@ CREATE TABLE `penghuni` (
 --
 
 INSERT INTO `penghuni` (`id`, `no_kamar`, `no_ktp`, `nama`, `alamat`, `no`, `tgl_masuk`, `harga_per_bulan`, `bulan_terakhir_bayar`, `status`, `password`, `foto`, `bulan_terakhir_update`) VALUES
-(64, '101', '43455', 'Aby', 'Serang', '082114952019', '03-11-2025', 1400000, '2025-12', 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', 'default-avatar.png', NULL),
-(66, '102', '43455', 'Tama', 'Senen', '08126753267', '03-11-2025', 800000, NULL, 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', 'default-avatar.png', NULL),
-(67, '103', '135780', 'Yono', 'Cawang', '0921724365231', '10-09-2025', 2000000, NULL, 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', 'default-avatar.png', NULL),
-(72, '104', '2354646', 'Reyza', 'Ancol', '0923176233', '10-09-2025', 2400000, NULL, 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', 'default-avatar.png', NULL),
-(73, '105', '4321433', 'Husen', 'Bogor', '534235466', '10-09-2025', 2400000, NULL, 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', 'default-avatar.png', NULL),
-(74, '201', '8273764', 'Riski', 'BKT', '0192826731', '18-09-2025', 1500000, NULL, 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', 'default-avatar.png', NULL),
-(75, '202', '1783924', 'Frando', 'Jagakarsa', '09823123221', '10-09-2025', 2000000, NULL, 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', NULL, NULL);
+(64, '101', '43455', 'Aby', 'Serang', '082114952019', '03-11-2025', 1400000, '2025-12', 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', '427940df744ed08316e0f16f58f7367f.jpg', NULL),
+(76, '102', '8273764', 'Tama', 'Senen', '0872175212', '08-08-2025', 2000000, '2025-12', 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png', NULL),
+(77, '104', '4321433', 'Frando', 'Jagakarsa', '09287238271', '09-09-2025', 2400000, NULL, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png', NULL),
+(78, '204', '928397221', 'Yono', 'Pesing', '082653621121', '09-11-2025', 800000, NULL, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png', NULL);
 
 -- --------------------------------------------------------
 
@@ -527,7 +525,7 @@ ALTER TABLE `penghuni_session`
 -- AUTO_INCREMENT for table `keuangan`
 --
 ALTER TABLE `keuangan`
-  MODIFY `id_pembayaran` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_pembayaran` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `log_auto_update`
@@ -539,13 +537,13 @@ ALTER TABLE `log_auto_update`
 -- AUTO_INCREMENT for table `pengajuan_pembayaran`
 --
 ALTER TABLE `pengajuan_pembayaran`
-  MODIFY `id_pengajuan` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_pengajuan` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `penghuni`
 --
 ALTER TABLE `penghuni`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- Constraints for dumped tables
