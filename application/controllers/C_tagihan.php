@@ -11,7 +11,7 @@ class C_tagihan extends CI_Controller {
 
     /**
      * Cron Job untuk Update Tagihan Bulanan
-     * URL: http://localhost/simkos/c_tagihan/update_tagihan_bulanan/[secret_key]
+     * URL: http://localhost/SkyKost/c_tagihan/update_tagihan_bulanan/[secret_key]
      */
     function update_tagihan_bulanan($secret_key = null){
         // Security: Hanya bisa diakses dengan secret key yang benar
