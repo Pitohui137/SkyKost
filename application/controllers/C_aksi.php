@@ -30,72 +30,156 @@ class C_aksi extends CI_Controller {
         redirect (base_url('daftar-kamar'));
     }
 
+    /**
+     * ====================================================================
+     * UPDATED: Tambah Penghuni dengan Prevent Double Submit
+     * ====================================================================
+     */
     function aksi_tambah_penghuni(){
-    $no_kamar       = $this->input->post('no_kamar');
-    $nama           = $this->input->post('nama');
-    $no_ktp         = $this->input->post('no_ktp');
-    $alamat         = $this->input->post('alamat');
-    $no             = $this->input->post('no');
-    $password = hash('sha1', $this->input->post('password'));
-    $tgl_masuk      = $this->input->post('tgl_masuk');
-    $harga_per_bulan = $this->input->post('harga_per_bulan');
+        // ============================================
+        // CEGAH DOUBLE SUBMIT DENGAN TOKEN
+        // ============================================
+        $token = $this->input->post('form_token');
+        $session_token = $this->session->userdata('form_token');
+        
+        if (!$token || !$session_token || $token !== $session_token) {
+            $this->session->set_flashdata('pesan', 'toastr.error("Invalid form submission. Silakan coba lagi.")');
+            redirect(base_url('daftar-kamar'));
+            return;
+        }
+        
+        // Hapus token setelah digunakan (one-time use)
+        $this->session->unset_userdata('form_token');
 
-    $data = array(
-        'no_kamar'          => $no_kamar,
-        'nama'              => $nama,
-        'no_ktp'            => $no_ktp,
-        'alamat'            => $alamat,
-        'no'                => $no,
-        'password'          => $password,
-        'tgl_masuk'         => $tgl_masuk,
-        'harga_per_bulan'   => $harga_per_bulan,
-        'status'            => 'Penghuni',
-        'bulan_terakhir_bayar' => NULL
-    );
+        // ============================================
+        //  VALIDASI INPUT
+        // ============================================
+        $no_kamar       = $this->input->post('no_kamar');
+        $nama           = trim($this->input->post('nama'));
+        $no_ktp         = $this->input->post('no_ktp');
+        $alamat         = trim($this->input->post('alamat'));
+        $no             = $this->input->post('no');
+        $password       = $this->input->post('password');
+        $tgl_masuk      = $this->input->post('tgl_masuk');
 
-    $kamar = $this->m_data->detail_kamar(array('no_kamar' => $no_kamar))->row();
+        // Validasi input required
+        if (empty($nama) || empty($no_kamar) || empty($tgl_masuk)) {
+            $this->session->set_flashdata('pesan', 'toastr.error("Data tidak lengkap. Silakan isi semua field yang wajib.")');
+            redirect(base_url('tambah-penghuni/'.$no_kamar));
+            return;
+        }
 
-    if ($kamar->jml_penghuni == '1'){
-        $this->session->set_flashdata('pesan', 'toastr.warning("Kamar '.$no_kamar.' sudah terisi, silakan pilih kamar lain")');
+        // Validasi format tanggal
+        $date_parts = explode('-', $tgl_masuk);
+        if (count($date_parts) != 3 || !checkdate($date_parts[1], $date_parts[0], $date_parts[2])) {
+            $this->session->set_flashdata('pesan', 'toastr.error("Format tanggal tidak valid")');
+            redirect(base_url('tambah-penghuni/'.$no_kamar));
+            return;
+        }
+
+        // ============================================
+        //  CEK KAMAR
+        // ============================================
+        $kamar = $this->m_data->detail_kamar(array('no_kamar' => $no_kamar))->row();
+        
+        if (!$kamar) {
+            $this->session->set_flashdata('pesan', 'toastr.error("Kamar tidak ditemukan")');
+            redirect(base_url('daftar-kamar'));
+            return;
+        }
+
+        // Cek apakah kamar sudah terisi
+        if ($kamar->jml_penghuni >= 1){
+            $this->session->set_flashdata('pesan', 'toastr.warning("Kamar '.$no_kamar.' sudah terisi, silakan pilih kamar lain")');
+            redirect(base_url('daftar-kamar'));
+            return;
+        }
+
+        // ============================================
+        // SET HARGA PER BULAN (dari harga kamar)
+        // ============================================
+        // Harga per bulan = harga kamar (akan auto update setiap bulan via cron)
+        $harga_per_bulan = $kamar->harga;
+
+        // Hash password
+        $password_hash = hash('sha1', $password);
+
+        // ============================================
+        // CEK DUPLIKAT (Double Check)
+        // ============================================
+        // Cek apakah penghuni dengan nama yang sama sudah ada di kamar ini
+        $existing = $this->db->get_where('penghuni', array(
+            'nama' => $nama,
+            'no_kamar' => $no_kamar,
+            'status' => 'Penghuni'
+        ))->num_rows();
+
+        if ($existing > 0) {
+            $this->session->set_flashdata('pesan', 'toastr.warning("Penghuni dengan nama '.$nama.' sudah ada di kamar '.$no_kamar.'")');
+            redirect(base_url('daftar-kamar'));
+            return;
+        }
+
+        // ============================================
+        // PREPARE DATA
+        // ============================================
+        $data = array(
+            'no_kamar'          => $no_kamar,
+            'nama'              => $nama,
+            'no_ktp'            => $no_ktp,
+            'alamat'            => $alamat,
+            'no'                => $no,
+            'password'          => $password_hash,
+            'tgl_masuk'         => $tgl_masuk,
+            'harga_per_bulan'   => $harga_per_bulan,
+            'status'            => 'Penghuni',
+            'foto'              => 'default-avatar.png',
+            'bulan_terakhir_bayar' => NULL
+        );
+
+        // ============================================
+        // INSERT DENGAN TRANSACTION
+        // ============================================
+        $this->db->trans_start();
+
+        try {
+            // Insert penghuni baru
+            $this->db->insert('penghuni', $data);
+            
+            if ($this->db->affected_rows() <= 0) {
+                throw new Exception('Gagal menambahkan penghuni ke database');
+            }
+
+            // Get inserted ID
+            $insert_id = $this->db->insert_id();
+
+            // Complete transaction
+            $this->db->trans_complete();
+            
+            // Check transaction status
+            if ($this->db->trans_status() === FALSE) {
+                throw new Exception('Transaction failed');
+            }
+            
+            // SUCCESS
+            $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah penghuni <strong>'.$nama.'</strong> pada kamar <strong>'.$no_kamar.'</strong> dengan harga <strong>Rp'.number_format($harga_per_bulan, 0, ',', '.').' per bulan</strong>")');
+            
+            // Log activity (optional)
+            $this->log_activity('INSERT', 'penghuni', $insert_id, 'Tambah penghuni: '.$nama.' di kamar '.$no_kamar);
+            
+        } catch (Exception $e) {
+            // ROLLBACK jika error
+            $this->db->trans_rollback();
+            
+            // Log error
+            log_message('error', 'Error adding penghuni: ' . $e->getMessage());
+            
+            $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan: Penghuni gagal ditambahkan. Silakan coba lagi.")');
+        }
+
+        redirect(base_url('daftar-kamar'));
     }
-    else if ($this->m_data->insert_penghuni($data) == true){
-        $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah penghuni '.$nama.' pada kamar '.$no_kamar.'")');
-    }
-    else {
-        $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
-    }
-    redirect (base_url('daftar-kamar'));
-}
 
-function aksi_edit_penghuni(){
-    $id_penghuni    = $this->input->post('id_penghuni');
-    $no_kamar       = $this->input->post('no_kamar');
-    $nama           = $this->input->post('nama');
-    $no_ktp         = $this->input->post('no_ktp');
-    $alamat         = $this->input->post('alamat');
-    $no             = $this->input->post('no');
-    $tgl_masuk      = $this->input->post('tgl_masuk');
-    $harga_per_bulan = $this->input->post('harga_per_bulan'); 
-
-    $data = array(
-        'no_kamar'          => $no_kamar,
-        'nama'              => $nama,
-        'no_ktp'            => $no_ktp,
-        'alamat'            => $alamat,
-        'no'                => $no,
-        'tgl_masuk'         => $tgl_masuk,
-        'harga_per_bulan'   => $harga_per_bulan, 
-        'status'            => 'Penghuni'
-    );
-
-    if ($this->m_data->update_penghuni($id_penghuni, $data) == true){
-        $this->session->set_flashdata('pesan', 'toastr.success("Berhasil memperbarui data penghuni '.$nama.' pada kamar '.$no_kamar.'")');
-    }
-    else {
-        $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
-    }
-    redirect (base_url('daftar-penghuni'));
-}
 
     function aksi_hapus_penghuni($id = null){
 
@@ -111,7 +195,10 @@ function aksi_edit_penghuni(){
                 $no_kamar = $penghuni->no_kamar;
 
                 if ($penghuni->status == 'Penghuni'){
-                    $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menghapus penghuni '.$penghuni->nama.' dari kamar '.$no_kamar.'")');
+                    $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menghapus penghuni <strong>'.$penghuni->nama.'</strong> dari kamar <strong>'.$no_kamar.'</strong>")');
+                    
+                    // Log activity
+                    $this->log_activity('DELETE', 'penghuni', $id, 'Hapus penghuni: '.$penghuni->nama.' dari kamar '.$no_kamar);
                 }
                 else {
                     $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
@@ -146,7 +233,10 @@ function aksi_edit_penghuni(){
         );
 
         if ($this->m_data->insert_pembayaran($data) == true){
-            $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah data pembayaran penghuni '.$nama.' pada kamar '.$no_kamar.'")');
+            $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambah data pembayaran penghuni <strong>'.$nama.'</strong> pada kamar <strong>'.$no_kamar.'</strong>")');
+            
+            // Log activity
+            $this->log_activity('INSERT', 'keuangan', $this->db->insert_id(), 'Tambah pembayaran: '.$nama.' Rp'.number_format($bayar, 0, ',', '.'));
         }
         else {
             $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
@@ -169,7 +259,10 @@ function aksi_edit_penghuni(){
         );
 
         if ($this->m_data->update_pembayaran($id_pembayaran, $data) == true){
-            $this->session->set_flashdata('pesan', 'toastr.success("Berhasil memperbarui pembayaran tanggal '.$tgl_bayar.' dari penghuni '.$nama.'")');
+            $this->session->set_flashdata('pesan', 'toastr.success("Berhasil memperbarui pembayaran tanggal <strong>'.$tgl_bayar.'</strong> dari penghuni <strong>'.$nama.'</strong>")');
+            
+            // Log activity
+            $this->log_activity('UPDATE', 'keuangan', $id_pembayaran, 'Edit pembayaran: '.$nama.' tanggal '.$tgl_bayar);
         }
         else {
             $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
@@ -188,7 +281,10 @@ function aksi_edit_penghuni(){
         }
         else {
             if ($this->m_data->delete_pembayaran($id_pembayaran) == true){
-                $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menghapus pembayaran tanggal '.$pembayaran->tgl_bayar.' dari penghuni '.$pembayaran->nama.'")');
+                $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menghapus pembayaran tanggal <strong>'.$pembayaran->tgl_bayar.'</strong> dari penghuni <strong>'.$pembayaran->nama.'</strong>")');
+                
+                // Log activity
+                $this->log_activity('DELETE', 'keuangan', $id_pembayaran, 'Hapus pembayaran: '.$pembayaran->nama.' tanggal '.$pembayaran->tgl_bayar);
             }
             else {
                 $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan")');
@@ -220,7 +316,12 @@ function aksi_edit_penghuni(){
         }
     }
 
-  function get_pendapatan_tahunan(){
+    /**
+     * ====================================================================
+     * Get Pendapatan Tahunan untuk Dashboard
+     * ====================================================================
+     */
+    function get_pendapatan_tahunan(){
         $tahun = $this->input->post('tahun');
         
         if (!$tahun) {
@@ -258,5 +359,5 @@ function aksi_edit_penghuni(){
         
         echo json_encode($data);
     }
-}
 
+}

@@ -265,17 +265,6 @@ form#login-form, form#register-form, form#changepass-form{
   color: #fff
 }
 
-#edit_penghuni, #edit_penghuni2, .eks_penghuni, .eks_penghuni2 {
-  border-radius: 3px !important;
-  margin-left: 0px !important;
-  color: #fff
-}
-
-/*NAVBAR*/
-  .nav-undip {
-    padding-left: 0 !important;
-    vertical-align: middle;
-  }
 
 /*EDIT PENGHUNI*/
   .btn-edit-penghuni{

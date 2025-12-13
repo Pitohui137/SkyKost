@@ -155,62 +155,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- PENDAPATAN PER BULAN (TABEL INTERAKTIF) -->
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Rincian Pendapatan per Bulan</div>
-                                <div class="ibox-tools">
-                                    <select id="filterTahun" class="form-control" style="width: 150px;">
-                                        <?php 
-                                        $tahun_sekarang = date('Y');
-                                        for ($i = 0; $i < 5; $i++): 
-                                            $tahun = $tahun_sekarang - $i;
-                                        ?>
-                                            <option value="<?= $tahun ?>" <?= $i == 0 ? 'selected' : '' ?>><?= $tahun ?></option>
-                                        <?php endfor; ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="ibox-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover" id="tabelPendapatan">
-                                        <thead>
-                                            <tr>
-                                                <th>Bulan</th>
-                                                <th class="text-right">Total Pendapatan</th>
-                                                <th class="text-center">Jumlah Transaksi</th>
-                                                <th class="text-center">Rata-rata</th>
-                                                <th class="text-center">Trend</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="bodyTabelPendapatan">
-                                            <tr>
-                                                <td colspan="5" class="text-center">
-                                                    <div class="spinner-border text-primary" role="status">
-                                                        <span class="sr-only">Loading...</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr class="font-strong">
-                                                <td>TOTAL</td>
-                                                <td class="text-right" id="totalPendapatan">-</td>
-                                                <td class="text-center" id="totalTransaksi">-</td>
-                                                <td class="text-center" id="rataRata">-</td>
-                                                <td></td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- PEMBAYARAN TERBARU -->
                 <div class="row">
                     <div class="col-lg-12">

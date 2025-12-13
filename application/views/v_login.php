@@ -3,9 +3,8 @@
     <div class="content login-parent">
         <form id="login-form" action="<?= base_url('aksi-login') ?>" method="post">
                 <div class="login-title">
-                    <img src="<?= base_url('assets/img/home.png') ?>" alt="Kos" style="width: 120px; vertical-align: middle;">
-                    <h2 class="login-title1">Aplikasi</h2>
-                    <h2 class="login-title1">Sky Kost</h2>
+                    <img src="<?= base_url('assets/img/skykost.jpg') ?>" alt="Kos" style="width: 120px; vertical-align: middle;">
+                    <h2 class="login-title1">Portal Admin</h2>
                 </div>
                 <div class="social-auth-hr">
                     <span>Silakan Masuk</span>
@@ -22,11 +21,6 @@
                         <input class="form-control" type="password" name="password" placeholder="Password">
                     </div>
                 </div>
-                <!-- <div class="form-group d-flex justify-content-between">
-                    <label class="ui-checkbox ui-checkbox-info">
-                        <input type="checkbox">
-                        <span class="input-span"></span>Ingat saya</label>
-                </div> -->
                 <?php
                 switch ($pesan){
                     case 'gagal_login':

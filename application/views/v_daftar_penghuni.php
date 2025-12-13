@@ -33,12 +33,10 @@
                                         <a class="btn btn-sm btn-success active edit-huni" href="<?= base_url('tambah-pembayaran/'.$penghuni->id) ?>" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tambah Pembayaran">
                                             <span class="fa fa-dollar"></span>
                                         </a>
-                                        <a class="btn btn-sm btn-info active edit-huni" href="<?= base_url('edit-penghuni/'.$penghuni->id) ?>" data-toggle="tooltip" data-placement="top" title="" data-original-title="Ubah Data">
-                                            <span class="fa fa-pencil"></span>
-                                        </a>
                                         <a class="btn btn-sm btn-danger active hapus-penghuni" id="<?= $penghuni->id ?>"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Hapus Data">
                                             <span class="fa fa-trash"></span>
                                         </a>
+                                        
                                     </td>
                                 </tr>
                                 <?php } ?>

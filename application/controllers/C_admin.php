@@ -12,49 +12,23 @@ class C_admin extends CI_Controller {
         $this->load->model('m_data');
     }
 
-   
-
-    // superadmin only
-    // tidak terpakai
-    function daftar_user(){
-        $data['judul_halaman'] = 'Daftar User';
-        $data['pesan'] = $this->session->flashdata('pesan');
-        $data['username'] = $this->session->userdata('username');
-        $data['user'] = $this->m_data->data_user(['username !=' => 'superadmin'])->result();
-
-        if ($data['username'] != 'superadmin') show_404();
-
-        $this->load->view('_partials/v_head', $data);
-        $this->load->view('_partials/v_header');
-        $this->load->view('_partials/v_sidebar', $data);
-        $this->load->view('_partials/v_breadcrump', $data);
-        $this->load->view('v_daftar_user', $data); //page content
-        $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
-        $this->load->view('_partials/v_preloader');
-        $this->load->view('_partials/v_js', $data);
-    }
-
     function daftar_kamar(){
         $data['judul_halaman'] = 'Daftar Kamar';
         $data['username'] = $this->session->userdata('username');
         $data['kamar'] = $this->m_data->detail_kamar(['1' => '1'])->result();
-        $data['pesan'] = $this->session->flashdata('pesan');
-
+        
         $this->load->view('_partials/v_head', $data);
         $this->load->view('_partials/v_header');
         $this->load->view('_partials/v_sidebar', $data);
         $this->load->view('_partials/v_breadcrump', $data);
-        $this->load->view('v_daftar_kamar', $data); //page content
+        $this->load->view('v_daftar_kamar', $data);
         $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
         $this->load->view('_partials/v_preloader');
         $this->load->view('_partials/v_js');
     }
 
     function daftar_penghuni(){
         $data['judul_halaman'] = 'Daftar Penghuni';
-        $data['pesan'] = $this->session->flashdata('pesan');
         $data['username'] = $this->session->userdata('username');
         $data['penghuni'] = $this->m_data->detail_penghuni(['status' => 'Penghuni'])->result();
 
@@ -62,16 +36,14 @@ class C_admin extends CI_Controller {
         $this->load->view('_partials/v_header');
         $this->load->view('_partials/v_sidebar', $data);
         $this->load->view('_partials/v_breadcrump', $data);
-        $this->load->view('v_daftar_penghuni', $data); //page content
+        $this->load->view('v_daftar_penghuni', $data);
         $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
         $this->load->view('_partials/v_preloader');
         $this->load->view('_partials/v_js');
     }
 
     function riwayat_pembayaran(){
         $data['judul_halaman'] = 'Riwayat Pembayaran';
-        $data['pesan'] = $this->session->flashdata('pesan');
         $data['username'] = $this->session->userdata('username');
         $data['pembayaran'] = $this->m_data->detail_pembayaran(['1' => '1'])->result();
 
@@ -79,24 +51,10 @@ class C_admin extends CI_Controller {
         $this->load->view('_partials/v_header');
         $this->load->view('_partials/v_sidebar', $data);
         $this->load->view('_partials/v_breadcrump', $data);
-        $this->load->view('v_riwayat_pembayaran', $data); //page content
+        $this->load->view('v_riwayat_pembayaran', $data); 
         $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
         $this->load->view('_partials/v_preloader');
         $this->load->view('_partials/v_js', $data);
-    }
-
-    // superadmin only
-    function tambah_user(){
-        if ($this->session->userdata('username') != 'superadmin') show_404();
-
-        $data['judul_halaman'] = 'Tambah User';
-        $data['pesan'] = $this->session->flashdata('pesan');
-
-        $this->load->view('_partials/v_head_form', $data);
-        $this->load->view('v_tambah_user');
-        $this->load->view('_partials/v_preloader');
-        $this->load->view('_partials/v_js_form');
     }
 
     function tambah_penghuni($no_kamar = null){
@@ -109,15 +67,15 @@ class C_admin extends CI_Controller {
         else if ($data['kamar']->jml_penghuni == '1'){
             $this->session->set_flashdata('pesan', 'toastr.warning("Kamar '.$no_kamar.' sudah terisi, silakan pilih kamar lain")');
             redirect (base_url('daftar-kamar'));
+            
         }
 
         $this->load->view('_partials/v_head', $data);
         $this->load->view('_partials/v_header');
         $this->load->view('_partials/v_sidebar', $data);
         $this->load->view('_partials/v_breadcrump', $data);
-        $this->load->view('v_tambah_penghuni', $data); //page content
+        $this->load->view('v_tambah_penghuni', $data);
         $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
         $this->load->view('_partials/v_preloader');
         $this->load->view('_partials/v_js');
     }
@@ -133,9 +91,8 @@ class C_admin extends CI_Controller {
         $this->load->view('_partials/v_header');
         $this->load->view('_partials/v_sidebar', $data);
         $this->load->view('_partials/v_breadcrump', $data);
-        $this->load->view('v_tambah_pembayaran', $data); //page content
+        $this->load->view('v_tambah_pembayaran', $data);
         $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
         $this->load->view('_partials/v_preloader');
         $this->load->view('_partials/v_js');
     }
@@ -151,35 +108,12 @@ class C_admin extends CI_Controller {
         $this->load->view('_partials/v_header');
         $this->load->view('_partials/v_sidebar', $data);
         $this->load->view('_partials/v_breadcrump', $data);
-        $this->load->view('v_edit_harga_kamar', $data); //page content
+        $this->load->view('v_edit_harga_kamar', $data); 
         $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
         $this->load->view('_partials/v_preloader');
         $this->load->view('_partials/v_js');
     }
 
-    function edit_penghuni($id = null){
-
-        if (!isset($id)) redirect (base_url('daftar-penghuni'));
-
-        $data['penghuni'] = $this->m_data->detail_penghuni(array('id' => $id))->row();
-
-        if (!$data['penghuni']) show_404();
-
-        $data['judul_halaman'] = 'Edit Penghuni';
-        $data['username'] = $this->session->userdata('username');
-        $data['kamar'] = $this->m_data->detail_kamar(['1' => '1'])->result();
-
-        $this->load->view('_partials/v_head', $data);
-        $this->load->view('_partials/v_header');
-        $this->load->view('_partials/v_sidebar', $data);
-        $this->load->view('_partials/v_breadcrump', $data);
-        $this->load->view('v_edit_penghuni', $data); //page content
-        $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
-        $this->load->view('_partials/v_preloader');
-        $this->load->view('_partials/v_js');
-    }
 
     function edit_pembayaran($id_pembayaran = null){
 
@@ -195,9 +129,8 @@ class C_admin extends CI_Controller {
         $this->load->view('_partials/v_header');
         $this->load->view('_partials/v_sidebar', $data);
         $this->load->view('_partials/v_breadcrump', $data);
-        $this->load->view('v_edit_pembayaran', $data); //page content
+        $this->load->view('v_edit_pembayaran', $data);
         $this->load->view('_partials/v_footer');
-        // $this->load->view('_partials/v_theme-config');
         $this->load->view('_partials/v_preloader');
         $this->load->view('_partials/v_js');
     }
@@ -268,7 +201,6 @@ class C_admin extends CI_Controller {
 
       function dasbor(){
         $data['judul_halaman'] = 'Dasbor';
-        $data['pesan'] = $this->session->flashdata('pesan');
         $data['username'] = $this->session->userdata('username');
 
         // Load model pembayaran

@@ -34,7 +34,7 @@ class C_login_penghuni extends CI_Controller {
         if ($penghuni->num_rows() > 0){
             $penghuni = $penghuni->row();
             
-            // Cek apakah masih berstatus penghuni aktif
+           // Cek apakah masih berstatus penghuni aktif 
             if ($penghuni->status != 'Penghuni') {
                 $this->session->set_flashdata('pesan', 'tidak_aktif');
                 redirect(base_url('penghuni/login'));

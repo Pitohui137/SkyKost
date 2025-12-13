@@ -11,7 +11,6 @@ class C_tagihan extends CI_Controller {
 
     /**
      * Cron Job untuk Update Tagihan Bulanan
-     * Jalankan setiap awal bulan via Cron Job atau Task Scheduler
      * URL: http://localhost/simkos/c_tagihan/update_tagihan_bulanan/[secret_key]
      */
     function update_tagihan_bulanan($secret_key = null){
@@ -81,43 +80,6 @@ class C_tagihan extends CI_Controller {
         $this->log_cron_result($response);
         
         echo json_encode($response);
-    }
-
-    /**
-     * Manual trigger update tagihan (untuk testing)
-     * Bisa diakses oleh superadmin
-     */
-    function manual_update(){
-        if ($this->session->userdata('username') != 'superadmin') {
-            show_404();
-            return;
-        }
-
-        $penghuni_aktif = $this->db->get_where('penghuni', ['status' => 'Penghuni'])->result();
-        $updated = 0;
-        
-        foreach ($penghuni_aktif as $penghuni) {
-            $tgl_masuk = DateTime::createFromFormat('d-m-Y', $penghuni->tgl_masuk);
-            $now = new DateTime();
-            
-            if ($tgl_masuk) {
-                $interval = $tgl_masuk->diff($now);
-                $bulan_berlalu = ($interval->y * 12) + $interval->m;
-                
-                $harga_kamar = $this->db->get_where('kamar', ['no_kamar' => $penghuni->no_kamar])->row();
-                $tagihan_seharusnya = $harga_kamar->harga * ($bulan_berlalu + 1);
-                
-                $this->db->where('id', $penghuni->id);
-                $this->db->update('penghuni', [
-                    'harga_per_bulan' => $tagihan_seharusnya
-                ]);
-                
-                $updated++;
-            }
-        }
-        
-        $this->session->set_flashdata('pesan', 'toastr.success("Berhasil update tagihan untuk '.$updated.' penghuni")');
-        redirect(base_url('dasbor'));
     }
 
     /**

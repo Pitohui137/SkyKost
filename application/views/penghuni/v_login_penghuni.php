@@ -3,9 +3,8 @@
     <div class="content login-parent">
         <form id="login-form" action="<?= base_url('penghuni/aksi-login') ?>" method="post">
                 <div class="login-title">
-                    <img src="<?= base_url('assets/img/home.png') ?>" alt="Kos" style="width: 120px; vertical-align: middle;">
+                    <img src="<?= base_url('assets/img/skykost.jpg') ?>" alt="Kos" style="width: 120px; vertical-align: middle;">
                     <h2 class="login-title1">Portal Penghuni</h2>
-                    <h2 class="login-title1">Sky Kost</h2>
                 </div>
                 <div class="social-auth-hr">
                     <span>Silakan Masuk</span>

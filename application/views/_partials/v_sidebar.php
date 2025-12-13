@@ -14,61 +14,37 @@
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
-                    <li>
-                        <a <?php if ($judul_halaman == 'Daftar User') echo 'class="active"' ?> <?php if ($username != 'superadmin') echo 'style="display: none"' ?> href="<?= base_url('daftar-user') ?>"><i class="sidebar-item-icon fa fa-user"></i>
-                            <span class="nav-label">Daftar User</span>
-                        </a>
-                    </li>
                     <li class="heading">KAMAR</li>
-                    <!-- <li>
-                        <a <?php if ($judul_halaman == 'Pilih Kamar') echo 'class="active"' ?> href="<?= base_url('pilih-kamar') ?>"><i class="sidebar-item-icon fa fa-th"></i>
-                            <span class="nav-label">Pilih Kamar</span>
-                        </a>
-                    </li> -->
                     <li>
                         <a <?php if ($judul_halaman == 'Daftar Kamar') echo 'class="active"' ?> href="<?= base_url('daftar-kamar') ?>"><i class="sidebar-item-icon fa fa-th-list"></i>
                             <span class="nav-label">Daftar Kamar</span>
                         </a>
                     </li>
-                    <!-- <li>
-                        <a <?php if ($judul_halaman == 'Daftar Harga Kamar') echo 'class="active"' ?> href="<?= base_url('daftar-harga') ?>"><i class="sidebar-item-icon fa fa-dollar"></i>
-                            <span class="nav-label">Daftar Harga Kamar</span>
-                        </a>
-                    </li> -->
                     <li class="heading">PENGHUNI</li>
                     <li>
                         <a <?php if ($judul_halaman == 'Daftar Penghuni') echo 'class="active"' ?> href="<?= base_url('daftar-penghuni') ?>"><i class="sidebar-item-icon fa fa-user-circle"></i>
                             <span class="nav-label">Daftar Penghuni</span>
                         </a>
                     </li>
-                    <!-- <li>
-                        <a <?php if ($judul_halaman == 'Daftar Eks-Penghuni') echo 'class="active"' ?> href="<?= base_url('daftar-ekspenghuni') ?>"><i class="sidebar-item-icon fa fa-window-close"></i>
-                            <span class="nav-label">Daftar Eks-Penghuni</span>
-                        </a>
-                    </li> -->
                    <li class="heading">KEUANGAN</li>
-<li>
-    <a <?php if ($judul_halaman == 'Konfirmasi Pembayaran') echo 'class="active"' ?> href="<?= base_url('konfirmasi-pembayaran') ?>">
-        <i class="sidebar-item-icon fa fa-check-circle"></i>
-        <span class="nav-label">Konfirmasi Pembayaran</span>
-    </a>
-</li>
-<li>
-    <a <?php if ($judul_halaman == 'Riwayat Pembayaran') echo 'class="active"' ?> href="<?= base_url('riwayat-pembayaran') ?>">
-        <i class="sidebar-item-icon fa fa-history"></i>
-        <span class="nav-label">Riwayat Pembayaran</span>
-    </a>
-</li>
-                    <!-- <li>
-                        <a <?php if ($judul_halaman == 'Laporan Keuangan') echo 'class="active"' ?> href="<?= base_url('laporan-keuangan') ?>"><i class="sidebar-item-icon fa fa-money"></i>
-                            <span class="nav-label">Laporan Keuangan</span>
+                    <li>
+                        <a <?php if ($judul_halaman == 'Konfirmasi Pembayaran') echo 'class="active"' ?> href="<?= base_url('konfirmasi-pembayaran') ?>">
+                            <i class="sidebar-item-icon fa fa-check-circle"></i>
+                            <span class="nav-label">Konfirmasi Pembayaran</span>
                         </a>
-                    </li> -->
-                    <!-- <li>
-                        <a <?php if ($judul_halaman == 'Laporan Piutang') echo 'class="active"' ?> href="<?= base_url('laporan_piutang') ?>"><i class="sidebar-item-icon fa fa-credit-card-alt"></i>
-                            <span class="nav-label">Laporan Keuangan</span>
+                    </li>
+                    <li>
+                        <a <?php if ($judul_halaman == 'Riwayat Pembayaran') echo 'class="active"' ?> href="<?= base_url('riwayat-pembayaran') ?>">
+                            <i class="sidebar-item-icon fa fa-history"></i>
+                            <span class="nav-label">Riwayat Pembayaran</span>
                         </a>
-                    </li> -->
+                    </li>
+                    <li>
+                        <a <?php if ($judul_halaman == 'Update Tagihan') echo 'class="active"' ?> href="<?= base_url('c_tagihan/update_tagihan_bulanan/skykost') ?>">
+                        <i class="sidebar-item-icon fa fa-refresh"></i>
+                        <span class="nav-label">Update Tagihan</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </nav>

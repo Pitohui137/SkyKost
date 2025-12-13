@@ -18,12 +18,7 @@
                     </li>
                 </ul>
                 <!-- END TOP-LEFT TOOLBAR-->
-                <!-- <ul class="nav navbar-toolbar">
-                    <li>
-                        <img src="<?= base_url('assets/img/undip/logo-icon.png') ?>" class="d-none d-sm-inline" width="32" height="32" />
-                        <a class="nav-undip navbar-brand d-none d-sm-inline" href="#">Universitas Diponegoro</a>
-                    </li>
-                </ul> -->
+
                 <!-- START TOP-RIGHT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
                     <li class="dropdown dropdown-user">
@@ -33,7 +28,6 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right" style="min-width: 150px">
                             <a class="dropdown-item" href="<?= base_url('ubah-pass') ?>"><i class="fa fa-lock"></i>Ubah Password</a>
-                            <a class="dropdown-item" href="<?= base_url('tambah-user') ?>" <?php if ($username != 'superadmin') echo 'style="display: none"' ?>><i class="fa fa-user"></i>Tambah User</a>
                             <a class="dropdown-item" id="logout-alert"><i class="fa fa-power-off"></i>Logout</a>
                         </ul>
                     </li>
