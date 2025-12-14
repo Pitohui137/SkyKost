@@ -3,7 +3,7 @@
     <div class="content changepass-parent">
         <form id="changepass-form" action="<?= base_url('aksi-ubah-pass') ?>" method="post" novalidate="novalidate">
             <div class="changepass-title">
-                <!-- <img src="<?= base_url('assets/img/skykost.jpg') ?>" alt="Kos" style="width: 175px; vertical-align: middle"> -->
+                <!-- <img src="<?= base_url('assets/img/skykost.png') ?>" alt="Kos" style="width: 175px; vertical-align: middle"> -->
                 <h2 class="changepass-title1">Ubah Password Admin</h2>
             </div>
             <div class="social-auth-hr">

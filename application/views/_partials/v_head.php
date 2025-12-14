@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width initial-scale=1.0">
     <title><?= $judul_halaman ?> | Sistem Informasi Sky Kost</title>
     <!--FAV ICON-->
-    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/img/skykost.jpg') ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/img/skykostic.png') ?>">
     <!-- GLOBAL MAINLY STYLES-->
     <link href="<?= base_url('assets/vendors/bootstrap/dist/css/bootstrap.min.css') ?>" rel="stylesheet" />
     <link href="<?= base_url('assets/vendors/font-awesome/css/font-awesome.min.css') ?>" rel="stylesheet" />
