@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 13, 2025 at 09:17 PM
+-- Generation Time: Dec 14, 2025 at 08:08 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -50,7 +50,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_update_tagihan_bulanan` ()   BEG
         SET v_errors = CONCAT(v_errors, 'Error: ', @text, '; ');
     END;
     
-    -- Hitung total penghuni
     SELECT COUNT(*) INTO v_total FROM penghuni WHERE status = 'Penghuni';
     
     OPEN cur;
@@ -62,24 +61,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_update_tagihan_bulanan` ()   BEG
             LEAVE read_loop;
         END IF;
         
-        -- Ambil harga kamar
         SELECT harga INTO v_harga_kamar 
         FROM kamar 
         WHERE no_kamar = v_no_kamar;
         
-        -- Hitung bulan berlalu sejak tgl_masuk
         SET v_bulan_berlalu = TIMESTAMPDIFF(MONTH, 
             STR_TO_DATE(v_tgl_masuk, '%d-%m-%Y'), 
             NOW()
         );
         
-        -- Hitung tagihan baru (harga per bulan * jumlah bulan huni)
-        -- +1 untuk bulan berjalan
         SET v_tagihan_baru = v_harga_kamar * (v_bulan_berlalu + 1);
         
-        -- Update tagihan penghuni (TANPA bulan_terakhir_bayar)
+        -- UPDATE: harga_per_bulan -> tagihan
         UPDATE penghuni 
-        SET harga_per_bulan = v_tagihan_baru
+        SET tagihan = v_tagihan_baru
         WHERE id = v_id;
         
         SET v_updated = v_updated + 1;
@@ -87,7 +82,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_update_tagihan_bulanan` ()   BEG
     
     CLOSE cur;
     
-    -- Log hasil update
     INSERT INTO log_auto_update (tanggal_update, jumlah_penghuni, jumlah_updated, status, detail)
     VALUES (
         NOW(), 
@@ -99,7 +93,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_update_tagihan_bulanan` ()   BEG
             v_errors)
     );
     
-    -- Return hasil
     SELECT v_updated AS updated, v_total AS total, 
            IF(v_errors = '', 'success', 'partial') AS status;
     
@@ -109,12 +102,12 @@ END$$
 -- Functions
 --
 CREATE DEFINER=`root`@`localhost` FUNCTION `fn_hitung_piutang` (`p_id` INT) RETURNS DECIMAL(15,2) DETERMINISTIC BEGIN
-    DECLARE v_harga_per_bulan DECIMAL(15,2);
+    DECLARE v_tagihan DECIMAL(15,2);
     DECLARE v_total_bayar DECIMAL(15,2);
     DECLARE v_piutang DECIMAL(15,2);
     
-    -- Ambil harga per bulan
-    SELECT COALESCE(harga_per_bulan, 0) INTO v_harga_per_bulan
+    -- Ambil tagihan
+    SELECT COALESCE(tagihan, 0) INTO v_tagihan
     FROM penghuni
     WHERE id = p_id;
     
@@ -124,7 +117,7 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `fn_hitung_piutang` (`p_id` INT) RETU
     WHERE id_penghuni = p_id;
     
     -- Hitung piutang
-    SET v_piutang = v_harga_per_bulan - v_total_bayar;
+    SET v_piutang = v_tagihan - v_total_bayar;
     
     -- Pastikan tidak negatif
     IF v_piutang < 0 THEN
@@ -184,7 +177,7 @@ CREATE TABLE `detail_pembayaran` (
 ,`nama` varchar(200)
 ,`no_ktp` varchar(20)
 ,`tgl_bayar` varchar(10)
-,`harga_per_bulan` int(30)
+,`tagihan` int(30)
 ,`bayar` bigint(20)
 ,`ket` varchar(200)
 );
@@ -204,7 +197,7 @@ CREATE TABLE `detail_penghuni` (
 ,`no` varchar(30)
 ,`tgl_masuk` varchar(10)
 ,`status` varchar(20)
-,`harga_per_bulan` int(30)
+,`tagihan` int(30)
 ,`foto` varchar(255)
 ,`bayar` decimal(41,0)
 ,`piutang` decimal(42,0)
@@ -227,9 +220,9 @@ CREATE TABLE `kamar` (
 --
 
 INSERT INTO `kamar` (`lantai`, `no_kamar`, `harga`) VALUES
-('1', '101', 800000),
+('1', '101', 700000),
 ('1', '102', 400000),
-('1', '103', 900000),
+('1', '103', 600000),
 ('1', '104', 600000),
 ('1', '105', 600000),
 ('2', '201', 500000),
@@ -259,7 +252,9 @@ CREATE TABLE `keuangan` (
 INSERT INTO `keuangan` (`id_pembayaran`, `id_penghuni`, `tgl_bayar`, `bayar`, `ket`) VALUES
 (9, 64, '12-11-2025', 700000, 'Pembayaran via GoPay - November'),
 (12, 64, '13-12-2025', 700000, 'Pembayaran via GoPay - Desember 2025'),
-(13, 76, '13-12-2025', 900000, 'Pembayaran via Transfer BCA - Segini dulu ya Bu ');
+(13, 76, '13-12-2025', 900000, 'Pembayaran via Transfer BCA - Segini dulu ya Bu '),
+(16, 77, '14-12-2025', 500000, 'Nyicil'),
+(17, 76, '14-12-2025', 200000, 'Pembayaran via Transfer BCA');
 
 -- --------------------------------------------------------
 
@@ -309,7 +304,8 @@ CREATE TABLE `pengajuan_pembayaran` (
 INSERT INTO `pengajuan_pembayaran` (`id_pengajuan`, `id_penghuni`, `nominal`, `metode_pembayaran`, `bukti_transfer`, `tgl_pengajuan`, `status`, `tgl_konfirmasi`, `keterangan`) VALUES
 (5, 64, 700000, 'GoPay', '94ea6ff57d95f258b760ffe38b0bdccd.png', '2025-11-12 10:03:31', 'approved', '2025-11-12 10:04:28', 'November'),
 (6, 64, 700000, 'GoPay', '948a88ac5571d72c4bc475c191a23de4.png', '2025-12-13 17:37:14', 'approved', '2025-12-13 17:38:22', 'Desember 2025'),
-(7, 76, 900000, 'Transfer BCA', '3c41fcd0f04e28d2a121057f19bacb85.png', '2025-12-13 23:28:58', 'approved', '2025-12-13 23:30:02', 'Segini dulu ya Bu ');
+(7, 76, 900000, 'Transfer BCA', '3c41fcd0f04e28d2a121057f19bacb85.png', '2025-12-13 23:28:58', 'approved', '2025-12-13 23:30:02', 'Segini dulu ya Bu '),
+(8, 76, 200000, 'Transfer BCA', '1b0f65f705fb6bab07f59ce896f8ab9b.jpg', '2025-12-14 03:47:24', 'approved', '2025-12-14 03:48:11', '');
 
 -- --------------------------------------------------------
 
@@ -325,7 +321,7 @@ CREATE TABLE `penghuni` (
   `alamat` varchar(200) NOT NULL,
   `no` varchar(30) NOT NULL,
   `tgl_masuk` varchar(10) NOT NULL,
-  `harga_per_bulan` int(30) DEFAULT NULL,
+  `tagihan` int(30) DEFAULT NULL,
   `status` varchar(20) DEFAULT NULL,
   `password` varchar(300) DEFAULT NULL,
   `foto` varchar(255) DEFAULT NULL
@@ -335,9 +331,9 @@ CREATE TABLE `penghuni` (
 -- Dumping data for table `penghuni`
 --
 
-INSERT INTO `penghuni` (`id`, `no_kamar`, `no_ktp`, `nama`, `alamat`, `no`, `tgl_masuk`, `harga_per_bulan`, `status`, `password`, `foto`) VALUES
+INSERT INTO `penghuni` (`id`, `no_kamar`, `no_ktp`, `nama`, `alamat`, `no`, `tgl_masuk`, `tagihan`, `status`, `password`, `foto`) VALUES
 (64, '101', '43455', 'Aby', 'Serang', '082114952019', '03-11-2025', 1400000, 'Penghuni', '8cb2237d0679ca88db6464eac60da96345513964', '427940df744ed08316e0f16f58f7367f.jpg'),
-(76, '102', '8273764', 'Tama', 'Senen', '0872175212', '08-08-2025', 2000000, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png'),
+(76, '102', '8273764', 'Tama', 'Senen', '0872175212', '08-08-2025', 2000000, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', '935ec5691ccb64360c366adda8c5b383.jpg'),
 (77, '104', '4321433', 'Frando', 'Jagakarsa', '09287238271', '09-09-2025', 2400000, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png'),
 (78, '204', '928397221', 'Yono', 'Pesing', '082653621121', '09-11-2025', 800000, 'Penghuni', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'default-avatar.png');
 
@@ -392,7 +388,7 @@ CREATE TABLE `v_laporan_keuangan` (
 --
 DROP TABLE IF EXISTS `detail_kamar`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detail_kamar`  AS SELECT `kamar`.`lantai` AS `lantai`, `kamar`.`no_kamar` AS `no_kamar`, `kamar`.`harga` AS `harga`, coalesce(sum(`keuangan_penghuni`.`harga_per_bulan`),0) AS `total_biaya`, coalesce(sum(`keuangan_penghuni`.`bayar`),0) AS `total_bayar`, coalesce(sum(`keuangan_penghuni`.`harga_per_bulan`),0) - coalesce(sum(`keuangan_penghuni`.`bayar`),0) AS `piutang`, count(`keuangan_penghuni`.`id`) AS `jml_penghuni` FROM (`kamar` left join (select `penghuni`.`id` AS `id`,`penghuni`.`no_kamar` AS `no_kamar`,`penghuni`.`harga_per_bulan` AS `harga_per_bulan`,coalesce(sum(`keuangan`.`bayar`),0) AS `bayar` from (`penghuni` left join `keuangan` on(`keuangan`.`id_penghuni` = `penghuni`.`id`)) where `penghuni`.`status` = 'Penghuni' group by `penghuni`.`id`) `keuangan_penghuni` on(`kamar`.`no_kamar` = `keuangan_penghuni`.`no_kamar`)) GROUP BY `kamar`.`no_kamar` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detail_kamar`  AS SELECT `kamar`.`lantai` AS `lantai`, `kamar`.`no_kamar` AS `no_kamar`, `kamar`.`harga` AS `harga`, coalesce(sum(`keuangan_penghuni`.`tagihan`),0) AS `total_biaya`, coalesce(sum(`keuangan_penghuni`.`bayar`),0) AS `total_bayar`, coalesce(sum(`keuangan_penghuni`.`tagihan`),0) - coalesce(sum(`keuangan_penghuni`.`bayar`),0) AS `piutang`, count(`keuangan_penghuni`.`id`) AS `jml_penghuni` FROM (`kamar` left join (select `penghuni`.`id` AS `id`,`penghuni`.`no_kamar` AS `no_kamar`,`penghuni`.`tagihan` AS `tagihan`,coalesce(sum(`keuangan`.`bayar`),0) AS `bayar` from (`penghuni` left join `keuangan` on(`keuangan`.`id_penghuni` = `penghuni`.`id`)) where `penghuni`.`status` = 'Penghuni' group by `penghuni`.`id`) `keuangan_penghuni` on(`kamar`.`no_kamar` = `keuangan_penghuni`.`no_kamar`)) GROUP BY `kamar`.`no_kamar` ;
 
 -- --------------------------------------------------------
 
@@ -401,7 +397,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `detail_pembayaran`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detail_pembayaran`  AS SELECT `keuangan`.`id_pembayaran` AS `id_pembayaran`, `keuangan`.`id_penghuni` AS `id_penghuni`, `penghuni`.`no_kamar` AS `no_kamar`, `penghuni`.`nama` AS `nama`, `penghuni`.`no_ktp` AS `no_ktp`, `keuangan`.`tgl_bayar` AS `tgl_bayar`, `penghuni`.`harga_per_bulan` AS `harga_per_bulan`, `keuangan`.`bayar` AS `bayar`, `keuangan`.`ket` AS `ket` FROM (`penghuni` join `keuangan` on(`penghuni`.`id` = `keuangan`.`id_penghuni`)) WHERE 1 = 1 ORDER BY str_to_date(`keuangan`.`tgl_bayar`,'%d-%m-%Y') DESC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detail_pembayaran`  AS SELECT `keuangan`.`id_pembayaran` AS `id_pembayaran`, `keuangan`.`id_penghuni` AS `id_penghuni`, `penghuni`.`no_kamar` AS `no_kamar`, `penghuni`.`nama` AS `nama`, `penghuni`.`no_ktp` AS `no_ktp`, `keuangan`.`tgl_bayar` AS `tgl_bayar`, `penghuni`.`tagihan` AS `tagihan`, `keuangan`.`bayar` AS `bayar`, `keuangan`.`ket` AS `ket` FROM (`penghuni` join `keuangan` on(`penghuni`.`id` = `keuangan`.`id_penghuni`)) WHERE 1 = 1 ORDER BY str_to_date(`keuangan`.`tgl_bayar`,'%d-%m-%Y') DESC ;
 
 -- --------------------------------------------------------
 
@@ -410,7 +406,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `detail_penghuni`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detail_penghuni`  AS SELECT `penghuni`.`id` AS `id`, `penghuni`.`no_kamar` AS `no_kamar`, `penghuni`.`nama` AS `nama`, `penghuni`.`no_ktp` AS `no_ktp`, `penghuni`.`alamat` AS `alamat`, `penghuni`.`no` AS `no`, `penghuni`.`tgl_masuk` AS `tgl_masuk`, `penghuni`.`status` AS `status`, `penghuni`.`harga_per_bulan` AS `harga_per_bulan`, `penghuni`.`foto` AS `foto`, coalesce(sum(`keuangan`.`bayar`),0) AS `bayar`, `penghuni`.`harga_per_bulan`- coalesce(sum(`keuangan`.`bayar`),0) AS `piutang` FROM (`penghuni` left join `keuangan` on(`penghuni`.`id` = `keuangan`.`id_penghuni`)) GROUP BY `penghuni`.`id` ORDER BY `penghuni`.`no_kamar` ASC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detail_penghuni`  AS SELECT `penghuni`.`id` AS `id`, `penghuni`.`no_kamar` AS `no_kamar`, `penghuni`.`nama` AS `nama`, `penghuni`.`no_ktp` AS `no_ktp`, `penghuni`.`alamat` AS `alamat`, `penghuni`.`no` AS `no`, `penghuni`.`tgl_masuk` AS `tgl_masuk`, `penghuni`.`status` AS `status`, `penghuni`.`tagihan` AS `tagihan`, `penghuni`.`foto` AS `foto`, coalesce(sum(`keuangan`.`bayar`),0) AS `bayar`, `penghuni`.`tagihan`- coalesce(sum(`keuangan`.`bayar`),0) AS `piutang` FROM (`penghuni` left join `keuangan` on(`penghuni`.`id` = `keuangan`.`id_penghuni`)) GROUP BY `penghuni`.`id` ORDER BY `penghuni`.`no_kamar` ASC ;
 
 -- --------------------------------------------------------
 
@@ -419,7 +415,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_dashboard_stats`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dashboard_stats`  AS SELECT (select count(0) from `kamar`) AS `total_kamar`, (select count(distinct `penghuni`.`no_kamar`) from `penghuni` where `penghuni`.`status` = 'Penghuni') AS `kamar_terisi`, (select count(0) from `penghuni` where `penghuni`.`status` = 'Penghuni') AS `total_penghuni`, (select sum(`keuangan`.`bayar`) from `keuangan` where date_format(str_to_date(`keuangan`.`tgl_bayar`,'%d-%m-%Y'),'%Y-%m') = date_format(current_timestamp(),'%Y-%m')) AS `pendapatan_bulan_ini`, (select sum(`keuangan`.`bayar`) from `keuangan` where date_format(str_to_date(`keuangan`.`tgl_bayar`,'%d-%m-%Y'),'%Y') = date_format(current_timestamp(),'%Y')) AS `pendapatan_tahun_ini`, (select sum(`p`.`harga_per_bulan` - coalesce((select sum(`k`.`bayar`) from `keuangan` `k` where `k`.`id_penghuni` = `p`.`id`),0)) from `penghuni` `p` where `p`.`status` = 'Penghuni') AS `total_piutang`, (select count(0) from `pengajuan_pembayaran` where `pengajuan_pembayaran`.`status` = 'pending') AS `pengajuan_pending` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dashboard_stats`  AS SELECT (select count(0) from `kamar`) AS `total_kamar`, (select count(distinct `penghuni`.`no_kamar`) from `penghuni` where `penghuni`.`status` = 'Penghuni') AS `kamar_terisi`, (select count(0) from `penghuni` where `penghuni`.`status` = 'Penghuni') AS `total_penghuni`, (select sum(`keuangan`.`bayar`) from `keuangan` where date_format(str_to_date(`keuangan`.`tgl_bayar`,'%d-%m-%Y'),'%Y-%m') = date_format(current_timestamp(),'%Y-%m')) AS `pendapatan_bulan_ini`, (select sum(`keuangan`.`bayar`) from `keuangan` where date_format(str_to_date(`keuangan`.`tgl_bayar`,'%d-%m-%Y'),'%Y') = date_format(current_timestamp(),'%Y')) AS `pendapatan_tahun_ini`, (select sum(`p`.`tagihan` - coalesce((select sum(`k`.`bayar`) from `keuangan` `k` where `k`.`id_penghuni` = `p`.`id`),0)) from `penghuni` `p` where `p`.`status` = 'Penghuni') AS `total_piutang`, (select count(0) from `pengajuan_pembayaran` where `pengajuan_pembayaran`.`status` = 'pending') AS `pengajuan_pending` ;
 
 -- --------------------------------------------------------
 
@@ -498,7 +494,7 @@ ALTER TABLE `penghuni_session`
 -- AUTO_INCREMENT for table `keuangan`
 --
 ALTER TABLE `keuangan`
-  MODIFY `id_pembayaran` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_pembayaran` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `log_auto_update`
@@ -510,7 +506,7 @@ ALTER TABLE `log_auto_update`
 -- AUTO_INCREMENT for table `pengajuan_pembayaran`
 --
 ALTER TABLE `pengajuan_pembayaran`
-  MODIFY `id_pengajuan` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_pengajuan` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `penghuni`
