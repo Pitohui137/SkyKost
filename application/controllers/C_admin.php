@@ -233,4 +233,18 @@ class C_admin extends CI_Controller {
         $this->load->view('_partials/v_preloader');
         $this->load->view('_partials/v_js', $data);
     }
+
+    function tambah_kamar(){
+    $data['judul_halaman'] = 'Tambah Kamar';
+    $data['username'] = $this->session->userdata('username');
+
+    $this->load->view('_partials/v_head', $data);
+    $this->load->view('_partials/v_header');
+    $this->load->view('_partials/v_sidebar', $data);
+    $this->load->view('_partials/v_breadcrump', $data);
+    $this->load->view('v_tambah_kamar', $data);
+    $this->load->view('_partials/v_footer');
+    $this->load->view('_partials/v_preloader');
+    $this->load->view('_partials/v_js');
+    }
 }

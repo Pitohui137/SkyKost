@@ -1,8 +1,12 @@
 <!-- START PAGE CONTENT-->
-            <div class="page-content fade-in-up">
-                <div class="ibox">
+            <div class="ibox">
                     <div class="ibox-head">
                         <div class="ibox-title"><?= $judul_halaman ?></div>
+                        <div class="ibox-tools">
+                            <a href="<?= base_url('tambah-kamar') ?>" class="btn btn-primary btn-sm">
+                                <i class="fa fa-plus"></i> Tambah Kamar
+                            </a>
+                        </div>
                     </div>
                     <div class="ibox-body">
                         <table class="table table-striped table-bordered table-hover" id="tabel-responsif" cellspacing="0" width="100%">

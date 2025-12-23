@@ -118,6 +118,10 @@ $route['get-pendapatan-tahunan'] = 'c_aksi/get_pendapatan_tahunan';
 // Route Penghuni - Upload Foto
 $route['penghuni/upload-foto'] = 'c_penghuni/upload_foto';
 
+// Route Admin - Tambah Kamar
+$route['tambah-kamar'] = 'c_admin/tambah_kamar';
+$route['aksi-tambah-kamar'] = 'c_aksi/aksi_tambah_kamar';
+
 
 $route['404_override'] = 'error404';
 $route['translate_uri_dashes'] = FALSE;

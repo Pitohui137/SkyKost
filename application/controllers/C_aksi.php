@@ -300,6 +300,59 @@ class C_aksi extends CI_Controller {
         }
     }
 
+    function aksi_tambah_kamar(){
+    $lantai = $this->input->post('lantai');
+    $no_kamar = $this->input->post('no_kamar');
+    $harga = $this->input->post('harga');
+
+    // Validasi input
+    if (empty($lantai) || empty($no_kamar) || empty($harga)) {
+        $this->session->set_flashdata('pesan', 'toastr.error("Data tidak lengkap. Silakan isi semua field.")');
+        redirect(base_url('tambah-kamar'));
+        return;
+    }
+
+    // Cek apakah kamar sudah ada
+    $cek_kamar = $this->db->get_where('kamar', array('no_kamar' => $no_kamar))->num_rows();
+    
+    if ($cek_kamar > 0) {
+        $this->session->set_flashdata('pesan', 'toastr.warning("Kamar '.$no_kamar.' sudah terdaftar dalam sistem")');
+        redirect(base_url('tambah-kamar'));
+        return;
+    }
+
+    $data = array(
+        'lantai' => $lantai,
+        'no_kamar' => $no_kamar,
+        'harga' => $harga
+    );
+
+    $this->db->trans_start();
+
+    try {
+        $this->db->insert('kamar', $data);
+        
+        if ($this->db->affected_rows() <= 0) {
+            throw new Exception('Gagal menambahkan kamar ke database');
+        }
+
+        $this->db->trans_complete();
+        
+        if ($this->db->trans_status() === FALSE) {
+            throw new Exception('Transaction failed');
+        }
+        
+        $this->session->set_flashdata('pesan', 'toastr.success("Berhasil menambahkan Kamar <strong>'.$no_kamar.'</strong> dengan harga <strong>Rp'.number_format($harga, 0, ',', '.').' per bulan</strong>")');
+        
+    } catch (Exception $e) {
+        $this->db->trans_rollback();
+        log_message('error', 'Error adding kamar: ' . $e->getMessage());
+        $this->session->set_flashdata('pesan', 'toastr.error("Terjadi kesalahan: Kamar gagal ditambahkan. Silakan coba lagi.")');
+    }
+
+    redirect(base_url('daftar-kamar'));
+}
+
     /**
      * ====================================================================
      * Get Pendapatan Tahunan untuk Dashboard

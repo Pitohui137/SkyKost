@@ -63,9 +63,13 @@ class M_data extends CI_Model {
         return ($this->db->affected_rows() > 0) ? true : false;
     }
 
-    // tidak terpakai
-    // function delete_user($username){
-    //     $this->db->delete('admin', array('username' => $username));
-    //     return ($this->db->affected_rows() > 0) ? true : false;
-    // }
+    function insert_kamar($data){
+    $this->db->insert('kamar', $data);
+    return ($this->db->affected_rows() > 0) ? true : false;
+    }
+
+    function cek_kamar_exist($no_kamar){
+    return $this->db->get_where('kamar', array('no_kamar' => $no_kamar))->num_rows();
+    }
+
 }
