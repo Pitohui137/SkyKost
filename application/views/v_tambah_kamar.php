@@ -45,22 +45,22 @@
                     </div>
                 </div>
                 
-                <div class="form-group row">
+               <div class="form-group row">
                     <label class="col-sm-3 col-form-label">
                         Nomor Kamar <span class="text-danger">*</span>
                     </label>
                     <div class="col-sm-9">
                         <input class="form-control" 
-                               type="text" 
-                               name="no_kamar" 
-                               id="no_kamar"
-                               placeholder="Contoh: 101, 201, 301" 
-                               maxlength="5"
-                               pattern="[0-9]{3,5}"
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
-                               required>
+                            type="text" 
+                            name="no_kamar" 
+                            id="no_kamar"
+                            placeholder="Contoh: 101, A-01, VIP-1" 
+                            maxlength="10"
+                            pattern="[A-Za-z0-9\s-]+" 
+                            title="Hanya boleh huruf, angka, spasi, atau tanda strip"
+                            required>
                         <small class="form-text text-muted">
-                            <i class="fa fa-info-circle"></i> Format: 3-5 digit angka (contoh: 101 untuk Lantai 1 Kamar 01)
+                            <i class="fa fa-info-circle"></i> Bisa diisi angka dan huruf (Contoh: A01, 101, VIP-1)
                         </small>
                     </div>
                 </div>

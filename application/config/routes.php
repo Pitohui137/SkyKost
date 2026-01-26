@@ -63,7 +63,7 @@ $route['laporan-keuangan'] = 'c_admin/laporan_keuangan';
 
 $route['ubah-pass'] = 'c_admin/ubah_pass';
 $route['tambah-user'] = 'c_admin/tambah_user';
-$route['tambah-penghuni/(:num)'] = 'c_admin/tambah_penghuni/$1';
+$route['tambah-penghuni/(:any)'] = 'c_admin/tambah_penghuni/$1';
 $route['tambah-pembayaran/(:num)'] = 'c_admin/tambah_pembayaran/$1';
 $route['edit-penghuni/(:num)'] = 'c_admin/edit_penghuni/$1';
 $route['edit-pembayaran/(:num)'] = 'c_admin/edit_pembayaran/$1';
