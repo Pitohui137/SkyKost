@@ -17,7 +17,7 @@
                     <strong><i class="fa fa-info-circle"></i> Informasi:</strong>
                     <ul class="mb-0 mt-2">
                         <li>Nomor kamar harus unik dan belum terdaftar</li>
-                        <li>Format nomor kamar: 3 digit (contoh: 101, 201, 301)</li>
+                        <li>Format nomor kamar: Contoh 101M, 102R, 103K</li>
                         <li>Harga kamar dalam satuan <strong>per bulan</strong></li>
                     </ul>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -54,13 +54,13 @@
                             type="text" 
                             name="no_kamar" 
                             id="no_kamar"
-                            placeholder="Contoh: 101, A-01, VIP-1" 
+                            placeholder="Contoh: 101M, 102R, 103K" 
                             maxlength="10"
                             pattern="[A-Za-z0-9\s-]+" 
                             title="Hanya boleh huruf, angka, spasi, atau tanda strip"
                             required>
                         <small class="form-text text-muted">
-                            <i class="fa fa-info-circle"></i> Bisa diisi angka dan huruf (Contoh: A01, 101, VIP-1)
+                            <i class="fa fa-info-circle"></i> Bisa diisi angka dan huruf (Contoh: 101M, 102R, 103K)
                         </small>
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                         Penomoran Kamar
                     </h5>
                     <p style="color: rgba(255,255,255,0.9); margin: 0;">
-                        Gunakan format <strong>LXX</strong> dimana L adalah lantai dan XX adalah nomor urut (contoh: 101, 201).
+                        Gunakan format <strong>LXX</strong> dimana L adalah lantai dan XX adalah nomor urut, kemudian tambahkan huruf untuk menunjukkan inisial cabang (misalnya: 101M, 102R, 103K).
                     </p>
                 </div>
             </div>

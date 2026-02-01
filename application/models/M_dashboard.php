@@ -60,6 +60,10 @@ class M_dashboard extends CI_Model {
         return $data;
     }
 
+    // ============================================
+    // FUNGSI BARU UNTUK LAPORAN RINCI
+    // ============================================
+    
     function get_pendapatan_per_bulan($tahun = null){
         if (!$tahun) {
             $tahun = date('Y');
@@ -75,10 +79,15 @@ class M_dashboard extends CI_Model {
             $this->db->like('tgl_bayar', $bulan_str . '-' . $tahun, 'before');
             $result = $this->db->get('keuangan')->row();
             
+            // Hitung jumlah transaksi
+            $this->db->where('tgl_bayar LIKE', '%-' . $bulan_str . '-' . $tahun);
+            $jumlah_transaksi = $this->db->count_all_results('keuangan');
+            
             $data[] = array(
                 'bulan' => $bulan_nama,
                 'bulan_num' => $bulan,
-                'total' => $result->bayar ? $result->bayar : 0
+                'total' => $result->bayar ? $result->bayar : 0,
+                'jumlah_transaksi' => $jumlah_transaksi
             );
         }
         
@@ -98,5 +107,26 @@ class M_dashboard extends CI_Model {
         }
         
         return $tahun_list;
+    }
+
+    function get_detail_piutang(){
+        $this->db->select('no_kamar, nama, tagihan, bayar, piutang, tgl_masuk');
+        $this->db->where('status', 'Penghuni');
+        $this->db->where('piutang >', 0);
+        $this->db->order_by('piutang', 'DESC');
+        return $this->db->get('detail_penghuni')->result();
+    }
+
+    function get_statistik_piutang(){
+        $this->db->select('
+            COUNT(*) as total_penghuni_hutang,
+            SUM(piutang) as total_piutang,
+            AVG(piutang) as rata_piutang,
+            MAX(piutang) as piutang_tertinggi,
+            MIN(piutang) as piutang_terendah
+        ');
+        $this->db->where('status', 'Penghuni');
+        $this->db->where('piutang >', 0);
+        return $this->db->get('detail_penghuni')->row();
     }
 }

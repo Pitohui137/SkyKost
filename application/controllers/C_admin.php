@@ -199,40 +199,51 @@ class C_admin extends CI_Controller {
         redirect(base_url('konfirmasi-pembayaran'));
     }
 
-      function dasbor(){
-        $data['judul_halaman'] = 'Dasbor';
-        $data['username'] = $this->session->userdata('username');
+function dasbor(){
+    $data['judul_halaman'] = 'Dasbor';
+    $data['username'] = $this->session->userdata('username');
 
-        // Load model pembayaran
-        $this->load->model('m_pembayaran');
-        $this->load->model('m_dashboard');
+    // Load model pembayaran
+    $this->load->model('m_pembayaran');
+    $this->load->model('m_dashboard');
 
-        // Statistik Umum
-        $data['total_kamar'] = $this->m_data->data_kamar()->num_rows();
-        $data['kamar_terisi'] = $this->m_dashboard->get_kamar_terisi();
-        $data['total_penghuni'] = $this->m_data->detail_penghuni(['status' => 'Penghuni'])->num_rows();
-        $data['pengajuan_pending'] = $this->m_pembayaran->get_all_pengajuan(['status' => 'pending']);
-        
-        // Pendapatan
-        $data['pendapatan_bulan_ini'] = $this->m_dashboard->get_pendapatan_bulan_ini();
-        $data['pendapatan_tahun_ini'] = $this->m_dashboard->get_pendapatan_tahun_ini();
-        $data['total_piutang'] = $this->m_dashboard->get_total_piutang();
-        
-        // Data untuk grafik pendapatan per bulan (12 bulan terakhir)
-        $data['grafik_pendapatan'] = $this->m_dashboard->get_pendapatan_12_bulan();
+    // Statistik Umum
+    $data['total_kamar'] = $this->m_data->data_kamar()->num_rows();
+    $data['kamar_terisi'] = $this->m_dashboard->get_kamar_terisi();
+    $data['total_penghuni'] = $this->m_data->detail_penghuni(['status' => 'Penghuni'])->num_rows();
+    $data['pengajuan_pending'] = $this->m_pembayaran->get_all_pengajuan(['status' => 'pending']);
+    
+    // Pendapatan
+    $data['pendapatan_bulan_ini'] = $this->m_dashboard->get_pendapatan_bulan_ini();
+    $data['pendapatan_tahun_ini'] = $this->m_dashboard->get_pendapatan_tahun_ini();
+    $data['total_piutang'] = $this->m_dashboard->get_total_piutang();
+    
+    // Data untuk grafik pendapatan per bulan (12 bulan terakhir)
+    $data['grafik_pendapatan'] = $this->m_dashboard->get_pendapatan_12_bulan();
 
-        // Pembayaran terbaru
-        $data['pembayaran_terbaru'] = $this->m_data->detail_pembayaran(['1' => '1'])->result();
-        $data['pembayaran_terbaru'] = array_slice($data['pembayaran_terbaru'], 0, 5);
-
-        $this->load->view('_partials/v_head', $data);
-        $this->load->view('_partials/v_header');
-        $this->load->view('_partials/v_sidebar', $data);
-        $this->load->view('v_dasbor', $data); //page content
-        $this->load->view('_partials/v_footer');
-        $this->load->view('_partials/v_preloader');
-        $this->load->view('_partials/v_js', $data);
+    // Data untuk tabel pendapatan rinci
+    $data['tahun_tersedia'] = $this->m_dashboard->get_tahun_tersedia();
+    if (empty($data['tahun_tersedia'])) {
+        $data['tahun_tersedia'] = array(date('Y'));
     }
+    $data['pendapatan_per_bulan'] = $this->m_dashboard->get_pendapatan_per_bulan(date('Y'));
+
+    // Data piutang
+    $data['detail_piutang'] = $this->m_dashboard->get_detail_piutang();
+    $data['statistik_piutang'] = $this->m_dashboard->get_statistik_piutang();
+
+    // Pembayaran terbaru
+    $data['pembayaran_terbaru'] = $this->m_data->detail_pembayaran(['1' => '1'])->result();
+    $data['pembayaran_terbaru'] = array_slice($data['pembayaran_terbaru'], 0, 5);
+
+    $this->load->view('_partials/v_head', $data);
+    $this->load->view('_partials/v_header');
+    $this->load->view('_partials/v_sidebar', $data);
+    $this->load->view('v_dasbor', $data); //page content
+    $this->load->view('_partials/v_footer');
+    $this->load->view('_partials/v_preloader');
+    $this->load->view('_partials/v_js', $data);
+}
 
     function tambah_kamar(){
     $data['judul_halaman'] = 'Tambah Kamar';
